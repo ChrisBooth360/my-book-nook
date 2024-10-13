@@ -1,11 +1,13 @@
+// bookRoutes.js
 const express = require('express');
 const router = express.Router();
 const Book = require('../models/Book');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// Get all books for a user
-router.get('/:userId', async (req, res) => {
+// Get all books for an authenticated user
+router.get('/', authMiddleware, async (req, res) => {
     try {
-        const books = await Book.find({ userId: req.params.userId });
+        const books = await Book.find({ userId: req.user.id });
         res.json(books)
     }
     catch (error) {
@@ -13,15 +15,15 @@ router.get('/:userId', async (req, res) => {
     }
 })
 
-// Add a new book
-router.post('/', async (req, res) => {
+// Add a new book (protected route)
+router.post('/', authMiddleware, async (req, res) => {
     const { title, author, isbn, userId } = req.body;
 
     const newBook = new Book({
         title,
         author,
         isbn,
-        userId
+        userId: req.user.id  // Attach the user's ID to the book
     });
 
     try {
@@ -31,8 +33,8 @@ router.post('/', async (req, res) => {
         res.status(400).json({ message: error.message })
     }
 
-    // Update book status
-    router.put('/:bookId', async (req, res) => {
+    // Update book status (protected route)
+    router.put('/:bookId', authMiddleware, async (req, res) => {
         const { status } = req.body
 
         try {
