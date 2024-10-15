@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Book = require('../models/Book');
+const Review = require('../models/Review')
 const authMiddleware = require('../middleware/authMiddleware');
 const axios = require('axios');
 
@@ -17,22 +18,44 @@ router.get('/', authMiddleware, async (req, res) => {
 })
 
 // Add a new book (protected route)
-router.post('/', authMiddleware, async (req, res) => {
-    const { title, author, isbn } = req.body;
+router.post('/search/add', authMiddleware, async (req, res) => {
+    const { googleBookId } = req.body; // Expecting the Google Book ID from the request body
 
-    const newBook = new Book({
-        title,
-        author,
-        isbn,
-        userId: req.user.id  // Attach the user's ID to the book
-    });
+    if (!googleBookId) {
+        return res.status(400).json({ message: 'Google Book ID is required' });
+    }
 
     try {
+        // Fetch book details from Google Books API using the Google Book ID
+        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes/${googleBookId}`, {
+            params: {
+                key: process.env.GOOGLE_BOOKS_API_KEY // Your Google Books API key
+            }
+        });
+
+        const bookData = response.data;
+
+        // Extract relevant book information
+        const newBook = new Book({
+            title: bookData.volumeInfo.title,
+            author: bookData.volumeInfo.authors.join(', '), // Join authors if there's more than one
+            isbn: bookData.volumeInfo.industryIdentifiers ? bookData.volumeInfo.industryIdentifiers[0].identifier : '', // Fallback if no ISBN is available
+            description: bookData.volumeInfo.description,
+            genre: bookData.volumeInfo.categories,
+            numberOfPages: bookData.volumeInfo.pageCount,
+            publicationDate: bookData.volumeInfo.publishedDate,
+            firstPublishedDate: bookData.volumeInfo.publishedDate, // This can be refined based on your needs
+            userId: req.user.id  // Attach the user's ID to the book
+        });
+
+        // Save the new book to the user's collection
         const savedBook = await newBook.save();
         res.status(201).json(savedBook);
-    } catch (error){
-        res.status(400).json({ message: error.message })
-    }  
+
+    } catch (error) {
+        console.error('Error adding book from Google:', error.message);
+        res.status(500).json({ message: 'Error adding book from Google' });
+    }
 })
 
 // Update book status (protected route)
@@ -111,7 +134,7 @@ router.get('/search', authMiddleware, async (req, res) => {
 })
 
 // Search user's collection for a book by title or author
-router.get('/mybooks/search', authMiddleware, async (req, res) => {
+router.get('/search/mybooks', authMiddleware, async (req, res) => {
     const { query } = req.query // Get the search query from the request
 
     if (!query) {
@@ -142,5 +165,110 @@ router.get('/mybooks/search', authMiddleware, async (req, res) => {
     }
 
 })
+
+// Route to create a review
+router.post('/reviews', authMiddleware, async (req, res) => {
+    const { bookId, rating, reviewText } = req.body;
+
+    if (!bookId || !rating) {
+        return res.status(400).json({ message: 'Book ID and rating are required' });
+    }
+
+    // Check if the user has already submitted a review for this book
+    const existingReview = await Review.findOne({ bookId, userId: req.user.id });
+
+    if (existingReview) {
+        return res.status(400).json({ message: 'You have already reviewed this book' });
+    }
+    
+    // If not, create a new review
+    try {
+        const newReview = new Review({
+            bookId,
+            userId: req.user.id,
+            rating,
+            reviewText
+        })
+
+        const savedReview = await newReview.save();
+
+        res.status(201).json(savedReview)
+    } catch (error) {
+        console.error('Error creating review:', error.message);
+        res.status(500).json({ message: 'Error creating review' });
+    }
+
+})
+
+// Route to get all reviews for a specific book
+router.get('/:bookId/reviews', authMiddleware, async (req, res) => {
+    const { bookId } = req.params;
+
+    try {
+        // Find all reviews for the specific book ID
+        const reviews = await Review.find({ bookId });
+
+        if (reviews.length === 0) {
+            return res.status(404).json({ message: 'No reviews found for this book' });
+        }
+
+        res.json(reviews);
+    } catch (error) {
+        console.error('Error fetching reviews:', error.message);
+        res.status(500).json({ message: 'Error fetching reviews' });
+    }
+});
+
+// Route to update a review
+router.put('/reviews/:reviewId', authMiddleware, async (req, res) => {
+    const { reviewId } = req.params;
+    const { rating, reviewText } = req.body;
+
+    try {
+        const review = await Review.findById(reviewId);
+        if (!review) {
+            return res.status(404).json({ message: 'Review not found' });
+        }
+
+        // Ensure the review belongs to the authenticated user
+        if (review.userId.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        review.rating = rating !== undefined ? rating : review.rating; // Update if provided
+        review.reviewText = reviewText !== undefined ? reviewText : review.reviewText; // Update if provided
+        await review.save();
+
+        res.json(review);
+
+    } catch (error) {
+        console.error('Error updating review:', error.message);
+        res.status(500).json({ message: 'Error updating review' });
+    }
+});
+
+// Route to delete a review
+router.delete('/reviews/:reviewId', authMiddleware, async (req, res) => {
+    const { reviewId } = req.params;
+
+    try {
+        const review = await Review.findById(reviewId);
+        if (!review) {
+            return res.status(404).json({ message: 'Review not found' });
+        }
+
+        // Ensure the review belongs to the authenticated user
+        if (review.userId.toString() !== req.user.id) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        await Review.findByIdAndDelete(reviewId);
+        res.json({ message: 'Review deleted successfully' });
+
+    } catch (error) {
+        console.error('Error deleting review:', error.message);
+        res.status(500).json({ message: 'Error deleting review' });
+    }
+});
 
 module.exports = router;
