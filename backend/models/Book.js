@@ -24,6 +24,24 @@ const bookSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
+    },
+    description: {
+        type: String,
+        default: ''
+    },
+    genre: {
+        type:[String],
+        default:[]
+    },
+    numberOfPages: {
+        type: Number,
+        default: 0
+    },
+    publicationDate: {
+        type: Date
+    },
+    firstPublicationDate: {
+        type: Date
     }
 
 });
