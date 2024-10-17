@@ -15,16 +15,6 @@ const bookSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    status: {
-        type: String,
-        enum: ['read', 'unread', 'currently reading'],
-        default: 'unread'
-    },
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
     description: {
         type: String,
         default: ''
@@ -39,11 +29,7 @@ const bookSchema = new mongoose.Schema({
     },
     publicationDate: {
         type: Date
-    },
-    firstPublicationDate: {
-        type: Date
     }
-
 });
 
 const Book = mongoose.model('Book', bookSchema);

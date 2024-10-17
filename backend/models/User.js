@@ -15,7 +15,23 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    books: [{
+        bookId: { 
+            type: mongoose.Schema.Types.ObjectId, 
+            ref: 'Book',
+            required: true
+        },  // Reference to Book schema
+        status: { 
+            type: String, 
+            enum: ['read', 'unread', 'currently reading'], 
+            default: 'unread' 
+        },
+        addedDate: { 
+            type: Date, 
+            default: Date.now 
+        }
+    }]
 });
 
 const User = mongoose.model('User', userSchema);

@@ -2,110 +2,29 @@
 const express = require('express');
 const router = express.Router();
 const Book = require('../models/Book');
-const Review = require('../models/Review')
+const User = require('../models/User')
 const authMiddleware = require('../middleware/authMiddleware');
 const axios = require('axios');
 
-// Get all books for an authenticated user
-router.get('/', authMiddleware, async (req, res) => {
+// Get all books from library
+router.get('/', async (req, res) => {
     try {
-        const books = await Book.find({ userId: req.user.id });
-        res.json(books)
-    }
-    catch (error) {
-        res.status(500).json({ message: error.message })
-    }
-})
+        // Find all books in the Book collection
+        const books = await Book.find();
 
-// Add a new book (protected route)
-router.post('/search/add', authMiddleware, async (req, res) => {
-    const { googleBookId } = req.body; // Expecting the Google Book ID from the request body
-
-    if (!googleBookId) {
-        return res.status(400).json({ message: 'Google Book ID is required' });
-    }
-
-    try {
-        // Fetch book details from Google Books API using the Google Book ID
-        const response = await axios.get(`https://www.googleapis.com/books/v1/volumes/${googleBookId}`, {
-            params: {
-                key: process.env.GOOGLE_BOOKS_API_KEY // Your Google Books API key
-            }
-        });
-
-        const bookData = response.data;
-
-        // Extract relevant book information
-        const newBook = new Book({
-            title: bookData.volumeInfo.title,
-            author: bookData.volumeInfo.authors.join(', '), // Join authors if there's more than one
-            isbn: bookData.volumeInfo.industryIdentifiers ? bookData.volumeInfo.industryIdentifiers[0].identifier : '', // Fallback if no ISBN is available
-            description: bookData.volumeInfo.description,
-            genre: bookData.volumeInfo.categories,
-            numberOfPages: bookData.volumeInfo.pageCount,
-            publicationDate: bookData.volumeInfo.publishedDate,
-            firstPublishedDate: bookData.volumeInfo.publishedDate, // This can be refined based on your needs
-            userId: req.user.id  // Attach the user's ID to the book
-        });
-
-        // Save the new book to the user's collection
-        const savedBook = await newBook.save();
-        res.status(201).json(savedBook);
-
-    } catch (error) {
-        console.error('Error adding book from Google:', error.message);
-        res.status(500).json({ message: 'Error adding book from Google' });
-    }
-})
-
-// Update book status (protected route)
-router.put('/:bookId', authMiddleware, async (req, res) => {
-    const { status } = req.body
-
-    try {
-        const book = await Book.findById(req.params.bookId);
-        if (!book) {
-            return res.status(404).json({ message: 'Book not found' });
-        } 
-
-        // Ensure the book belongs to the authenticated user
-        if (book.userId.toString() !== req.user.id) {
-            return res.status(401).json({ message: 'Unauthorized' });
+        if (books.length === 0) {
+            return res.status(404).json({ message: 'No books found in the library' });
         }
 
-        book.status = status;
-        await book.save();
-
-        res.json(book);
+        // Return all books
+        res.status(200).json(books);
     } catch (error) {
-        console.error('Error updating book status:', error.message);
-        res.status(400).json({ message: error.message })
+        console.error('Error fetching books:', error.message);
+        res.status(500).json({ message: 'Error fetching books' });
     }
-})
+});
 
-// Delete a book (protected route)
-router.delete('/:bookId', authMiddleware, async (req, res) => {
-    try {
-        const book = await Book.findById(req.params.bookId);
-        if (!book) {
-            return res.status(404).json({ message: 'Book not found' });
-        } 
-
-        // Ensure the book belongs to the authenticated user
-        if (book.userId.toString() !== req.user.id) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
-
-        await Book.findByIdAndDelete(req.params.bookId);
-        res.json({ message: 'Book deleted successfully' });
-
-    } catch (error) {
-        console.error('Error updating book status:', error.message);
-        res.status(400).json({ message: error.message })
-    }
-})
-
-// Search Google Books API for books outside of the user's collection
+// Search Google Books API for books
 router.get('/search', authMiddleware, async (req, res) => {
     const { query } = req.query // Get the search query from the request
 
@@ -133,141 +52,89 @@ router.get('/search', authMiddleware, async (req, res) => {
 
 })
 
-// Search user's collection for a book by title or author
-router.get('/search/mybooks', authMiddleware, async (req, res) => {
-    const { query } = req.query // Get the search query from the request
+// Add a new book (protected route)
+router.post('/search/add', authMiddleware, async (req, res) => {
+    const { googleBookId } = req.body;
 
-    if (!query) {
-        return res.status(400).json({ message: 'Please provide a search query' });
+    if (!googleBookId) {
+        return res.status(400).json({ message: 'Google Book ID is required' });
     }
 
     try {
-        // Find books in the user's collection where the title or author matches the search query
-        const books = await Book.find({
-            userId: req.user.id, 
-            $or: [
-                { title: { $regex: query, $options: 'i' } }, // Case-insensitive search on title
-                { author: { $regex: query, $options: 'i' } } // Case-insensitive search on author
-            ]
+        // Fetch book details from Google Books API using the Google Book ID
+        const { data: bookData } = await axios.get(`https://www.googleapis.com/books/v1/volumes/${googleBookId}`, {
+            params: {
+                key: process.env.GOOGLE_BOOKS_API_KEY
+            }
         });
 
-        if (books.length === 0) {
-            res.json('This book is not in the collection');
-        } else {
-            res.json(books);
+        const { title, authors, industryIdentifiers, description, categories, pageCount, publishedDate } = bookData.volumeInfo;
+
+        if (!industryIdentifiers || industryIdentifiers.length === 0) {
+            return res.status(400).json({ message: 'No valid ISBN found for this book' });
         }
 
-        
+        const isbn = industryIdentifiers[0].identifier;
 
-    } catch (error) {
-        console.error('Error searching Google Books:', error.message);
-        res.status(500).json({ message: 'Error searching for books' });
-    }
+        // Check if the book already exists in the database (by ISBN)
+        let existingBook = await Book.findOne({ isbn });
 
-})
+        // If the book doesn't exist, create and save a new one
+        if (!existingBook) {
+            existingBook = new Book({
+                title,
+                author: authors ? authors.join(', ') : 'Unknown Author',
+                isbn,
+                description,
+                genre: categories || [],
+                numberOfPages: pageCount || 0,
+                publicationDate: publishedDate
+            });
 
-// Route to create a review
-router.post('/reviews', authMiddleware, async (req, res) => {
-    const { bookId, rating, reviewText } = req.body;
-
-    if (!bookId || !rating) {
-        return res.status(400).json({ message: 'Book ID and rating are required' });
-    }
-
-    // Check if the user has already submitted a review for this book
-    const existingReview = await Review.findOne({ bookId, userId: req.user.id });
-
-    if (existingReview) {
-        return res.status(400).json({ message: 'You have already reviewed this book' });
-    }
-    
-    // If not, create a new review
-    try {
-        const newReview = new Review({
-            bookId,
-            userId: req.user.id,
-            rating,
-            reviewText
-        })
-
-        const savedReview = await newReview.save();
-
-        res.status(201).json(savedReview)
-    } catch (error) {
-        console.error('Error creating review:', error.message);
-        res.status(500).json({ message: 'Error creating review' });
-    }
-
-})
-
-// Route to get all reviews for a specific book
-router.get('/:bookId/reviews', authMiddleware, async (req, res) => {
-    const { bookId } = req.params;
-
-    try {
-        // Find all reviews for the specific book ID
-        const reviews = await Review.find({ bookId });
-
-        if (reviews.length === 0) {
-            return res.status(404).json({ message: 'No reviews found for this book' });
+            await existingBook.save();
         }
 
-        res.json(reviews);
+        // Find the authenticated user and check if the book is already in their collection
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const bookExists = user.books.some(book => book.bookId.toString() === existingBook._id.toString());
+        if (bookExists) {
+            return res.status(400).json({ message: 'Book already exists in your collection' });
+        }
+
+        // Add the book to the user's collection
+        user.books.push({ bookId: existingBook._id, status: 'unread' });
+        await user.save();
+
+        res.status(200).json(existingBook); // Respond with the added book details
     } catch (error) {
-        console.error('Error fetching reviews:', error.message);
-        res.status(500).json({ message: 'Error fetching reviews' });
+        console.error('Error adding book from Google:', error.message);
+        res.status(500).json({ message: 'Error adding book from Google' });
     }
 });
 
-// Route to update a review
-router.put('/reviews/:reviewId', authMiddleware, async (req, res) => {
-    const { reviewId } = req.params;
-    const { rating, reviewText } = req.body;
-
+// Delete a book from the library (requires authentication)
+router.delete('/:bookId', authMiddleware, async (req, res) => {
     try {
-        const review = await Review.findById(reviewId);
-        if (!review) {
-            return res.status(404).json({ message: 'Review not found' });
+        const { bookId } = req.params;
+
+        // Check if the book exists in the library
+        const book = await Book.findById(bookId);
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found' });
         }
 
-        // Ensure the review belongs to the authenticated user
-        if (review.userId.toString() !== req.user.id) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
+        // Delete the book from the database
+        await Book.findByIdAndDelete(bookId);
 
-        review.rating = rating !== undefined ? rating : review.rating; // Update if provided
-        review.reviewText = reviewText !== undefined ? reviewText : review.reviewText; // Update if provided
-        await review.save();
-
-        res.json(review);
-
+        res.status(200).json({ message: 'Book removed from the library successfully' });
     } catch (error) {
-        console.error('Error updating review:', error.message);
-        res.status(500).json({ message: 'Error updating review' });
-    }
-});
-
-// Route to delete a review
-router.delete('/reviews/:reviewId', authMiddleware, async (req, res) => {
-    const { reviewId } = req.params;
-
-    try {
-        const review = await Review.findById(reviewId);
-        if (!review) {
-            return res.status(404).json({ message: 'Review not found' });
-        }
-
-        // Ensure the review belongs to the authenticated user
-        if (review.userId.toString() !== req.user.id) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
-
-        await Review.findByIdAndDelete(reviewId);
-        res.json({ message: 'Review deleted successfully' });
-
-    } catch (error) {
-        console.error('Error deleting review:', error.message);
-        res.status(500).json({ message: 'Error deleting review' });
+        console.error('Error deleting book:', error.message);
+        res.status(500).json({ message: 'Error deleting book from the library' });
     }
 });
 
