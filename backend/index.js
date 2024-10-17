@@ -17,9 +17,14 @@ const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/userRoutes');
 
 app.use('/api/books', bookRoutes);
-app.use('/api/users', userRoutes);
+app.use('/api/user', userRoutes);
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+// Start the server only when this file is executed directly
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`);
+    });
+}
+
+// Export module for testing
+module.exports = app;
