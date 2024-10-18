@@ -66,18 +66,22 @@ router.post('/login', async (req, res) => {
 // Get all books for an authenticated user
 router.get('/', authMiddleware, async (req, res) => {
     try {
-        // Find the user by their ID and get the list of bookIds from their collection
-        const user = await User.findById(req.user.id).populate('books');
+        // Find the user by their ID and populate the bookId field with full book details
+        const user = await User.findById(req.user.id).populate('books.bookId');
         
         if (!user || !user.books.length) {
             return res.status(404).json({ message: 'No books found in your collection' });
         }
 
-        // Retrieve the book details for the user's books
-        const books = await Book.find({ _id: { $in: user.books } });
-        res.json(user.books);
-    }
-    catch (error) {
+        // Combine user-specific fields and book details
+        const userBooksWithDetails = user.books.map(userBook => ({
+            addedDate: userBook.addedDate.toISOString(),
+            status: userBook.status,
+            bookId: userBook.bookId, // Populated book details
+        }));
+
+        res.json(userBooksWithDetails); // Return books with both user-specific and full book details
+    } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
@@ -221,7 +225,7 @@ router.put('/profile', authMiddleware, async (req, res) => {
         console.error('Error updating profile:', error.message );
         res.status(500).json({ message: error.message })
     }
-})
+});
 
 // Change password
 router.put('/profile/password', authMiddleware, async (req, res) => {
@@ -251,7 +255,7 @@ router.put('/profile/password', authMiddleware, async (req, res) => {
         console.error('Error updating password:', error.message);
         res.status(500).json({ message: 'Error updating password' });
     }
-})
+});
 
 
 module.exports = router;
