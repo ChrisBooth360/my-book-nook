@@ -50,7 +50,7 @@ router.get('/search', authMiddleware, async (req, res) => {
         res.status(500).json({ message: 'Error searching for books' });
     }
 
-})
+});
 
 // Add a new book (protected route)
 router.post('/search/add', authMiddleware, async (req, res) => {
@@ -68,19 +68,20 @@ router.post('/search/add', authMiddleware, async (req, res) => {
             }
         });
 
+        // Extract necessary book details from Google Books response
         const { title, authors, industryIdentifiers, description, categories, pageCount, publishedDate } = bookData.volumeInfo;
 
         if (!industryIdentifiers || industryIdentifiers.length === 0) {
             return res.status(400).json({ message: 'No valid ISBN found for this book' });
         }
 
-        const isbn = industryIdentifiers[0].identifier;
+        const isbn = industryIdentifiers.find(identifier => identifier.type === 'ISBN_13')?.identifier || industryIdentifiers[0].identifier;
 
-        // Check if the book already exists in the database (by ISBN)
+        // Check if the book already exists in the database by its ISBN
         let existingBook = await Book.findOne({ isbn });
 
-        // If the book doesn't exist, create and save a new one
         if (!existingBook) {
+            // If the book doesn't exist, create and save a new one
             existingBook = new Book({
                 title,
                 author: authors ? authors.join(', ') : 'Unknown Author',
@@ -110,7 +111,7 @@ router.post('/search/add', authMiddleware, async (req, res) => {
         user.books.push({ bookId: existingBook._id, status: 'unread' });
         await user.save();
 
-        res.status(200).json(existingBook); // Respond with the added book details
+        res.status(200).json({ message: 'Book added successfully' });
     } catch (error) {
         console.error('Error adding book from Google:', error.message);
         res.status(500).json({ message: 'Error adding book from Google' });
