@@ -1,13 +1,15 @@
 // index.js
 const express = require('express');
+const cors = require('cors');
 const connectDB = require('./config/db');
 require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5001; // Use port from environment variable or default to 5001
 
+app.use(cors());
+
 // Connect to MongoDB
 connectDB();
-
 
 // Middleware to parse JSON bodies
 app.use(express.json());
