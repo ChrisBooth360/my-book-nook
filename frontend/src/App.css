@@ -1,9 +1,24 @@
 /* src/App.css */
 
+/* General Styling */
+body {
+  background-color: #FFFBFC;
+  font-family: Arial, sans-serif;
+  color: #191919;
+  margin: 0;
+  padding: 0;
+}
+
+div {
+  text-align: center;
+  padding: 20px;
+}
+
+/* Header Styling */
 header {
-  background-color: #f5f5f5;
+  background-color: #D05353; /* Primary color for header */
   padding: 10px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #F3A712; /* Secondary color for border */
 }
 
 header nav ul {
@@ -19,10 +34,115 @@ header nav ul li {
 
 header nav ul li a {
   text-decoration: none;
-  color: #333;
+  color: #FFFBFC; /* Light text for contrast against the header */
   font-weight: bold;
 }
 
 header nav ul li a:hover {
-  color: #007bff;
+  color: #F3A712; /* Secondary color on hover */
 }
+
+/* Typography */
+h1 {
+  color: #191919;
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #191919;
+  font-size: 18px;
+}
+
+/* Button Styling */
+button {
+  background-color: #F3A712; /* Secondary color */
+  color: #191919;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #D05353; /* Primary color on hover */
+  color: #FFFBFC; /* White text on hover */
+}
+
+/* Additional Styling */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.card {
+  background-color: #FFFBFC;
+  border: 1px solid #7A918D;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.card h2 {
+  color: #191919;
+}
+
+.card p {
+  color: #7A918D;
+}
+
+/* Button-like styling for Links */
+.btn {
+  display: inline-block;
+  background-color: #F3A712; /* Secondary color for buttons */
+  color: #191919;
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 16px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 20px;
+}
+
+.btn:hover {
+  background-color: #D05353; /* Primary color on hover */
+  color: #FFFBFC; /* White text on hover */
+}
+
+/* Book List Styling */
+.book-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.book-item {
+  background-color: #FFFBFC;
+  border: 1px solid #7A918D;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.book-item h3 {
+  color: #191919;
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.book-item p {
+  color: #7A918D;
+  font-size: 16px;
+}
+
+.error {
+  color: #D05353;
+  font-weight: bold;
+}
+
