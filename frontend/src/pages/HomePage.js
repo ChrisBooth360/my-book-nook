@@ -1,17 +1,151 @@
 // src/pages/HomePage.js
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { loginUser, registerUser } from '../services/api'; // Import both login and register functions
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import '../App.css'; // Custom styles
+import headerLogo from '../assets/book-nook-sq-logo-slogan.png';
 
-function HomePage() {
+const HomePage = () => {
+  const [formType, setFormType] = useState(null); // State to track form (login/register)
+  const [formData, setFormData] = useState({ email: '', password: '', username: '' }); // Track form inputs
+  const [error, setError] = useState(null); // State for error messages
+  const navigate = useNavigate(); // Initialize useNavigate
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      console.log('Logging in user:', formData); // Log request data
+      const response = await loginUser(formData); // Call the login function
+      console.log('Login successful:', response.data); // Log response
+      localStorage.setItem('token', response.data.token); // Store token in local storage
+      setError(null);
+      navigate('/profile'); // Redirect to the profile page
+    } catch (err) {
+      console.error('Login error:', err.response || err.message); // Log error details
+      setError('Login failed. Please check your credentials.');
+    }
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      console.log('Registering user:', formData); // Log request data
+      const response = await registerUser(formData); // Call the register function
+      console.log('Registration successful:', response.data); // Log response
+      setError(null);
+      navigate('/login'); // Redirect to the login page after registration
+    } catch (err) {
+      console.error('Registration error:', err.response || err.message); // Log error details
+      setError('Registration failed. Please try again.');
+    }
+  };
+
+  const renderForm = () => {
+    if (formType === 'login') {
+      return (
+        <div className="auth-form">
+          {error && <p style={{ color: 'red' }}>{error}</p>} {/* Show error message */}
+          <form onSubmit={handleLogin}> {/* Add onSubmit handler */}
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="form-input"
+            />
+            <br />
+            <br />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="form-input"
+            />
+            <div className="form-buttons">
+              <button type="submit" className="btn form-btn">Login</button>
+              <button className="back-btn" onClick={() => setFormType(null)}>Back</button>
+            </div>
+          </form>
+          <p className="form-switch-text">
+            Don't have an account? 
+            <span onClick={() => setFormType('register')}> Register here.</span>
+          </p>
+        </div>
+      );
+    }
+    
+    if (formType === 'register') {
+      return (
+        <div className="auth-form">
+          {error && <p style={{ color: 'red' }}>{error}</p>} {/* Show error message */}
+          <form onSubmit={handleRegister}> {/* Add onSubmit handler */}
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              value={formData.username}
+              onChange={handleChange}
+              required
+              className="form-input"
+            />
+            <br />
+            <br />
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              className="form-input"
+            />
+            <br />
+            <br />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+              className="form-input"
+            />
+            <div className="form-buttons">
+              <button type="submit" className="btn form-btn">Register</button>
+              <button className="back-btn" onClick={() => setFormType(null)}>Back</button>
+            </div>
+          </form>
+          <p className="form-switch-text">
+            Already have an account?
+            <span onClick={() => setFormType('login')}> Login here.</span>
+          </p>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="auth-buttons">
+        <button onClick={() => setFormType('login')} className="btn auth-btn">Login</button>
+        <button onClick={() => setFormType('register')} className="btn auth-btn">Register</button>
+      </div>
+    );
+  };
+
   return (
-    <div>
-      <h1>Welcome to My Book Nook</h1>
-      <p>Discover new books, manage your collection, and decide your next read!</p>
-      <Link to="/register" className="btn">Register</Link> {/* Link to register */}
-      <br />
-      <Link to="/login" className="btn">Login</Link> {/* Link to login */}
+    <div className="logged-out-homepage">
+      <img src={headerLogo} alt="Book Nook Logo" className="center-logo" />
+      {renderForm()} {/* Render either the buttons or the form */}
     </div>
   );
-}
+};
 
 export default HomePage;
