@@ -63,6 +63,12 @@ router.post('/login', async (req, res) => {
     }
 });
 
+// Logout route (invalidates token on client side)
+router.post('/logout', authMiddleware, (req, res) => {
+    res.json({ message: 'Logout successful.' });
+});
+
+
 // Get all books for an authenticated user
 router.get('/', authMiddleware, async (req, res) => {
     try {
