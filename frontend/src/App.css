@@ -16,22 +16,41 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 10px 20px;
-  height: 100px;
+  height: 75px;
 }
 
-.logo {
+.header-left {
+  flex: 1;
+}
+
+.header-middle {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.header-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.logo-link {
   display: flex;
   align-items: center;
 }
 
 .header-logo {
-  width: auto;
-  height: 100px; /* Adjust the height to fit your header */
+  height: 75px; /* Adjust the height to fit your header */
 }
 
-.nav-menu {
-  display: flex;
-  align-items: center;
+.search-bar {
+  width: 100%;
+  max-width: 400px;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #DBC0A4; /* Additional color for input border */
 }
 
 .nav-menu ul {
@@ -46,14 +65,27 @@ body {
   display: inline;
 }
 
-.nav-menu ul li a {
+.nav-menu ul li a,
+.logout-btn {
   color: #F8DCBF; /* Light color for contrast against the header */
   text-decoration: none;
   font-size: 18px;
   font-weight: bold;
 }
 
-.nav-menu ul li a:hover {
+.nav-menu ul li a:hover,
+.logout-btn:hover {
+  color: #FA9939; /* Highlight color on hover */
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.logout-btn:hover {
   color: #FA9939; /* Highlight color on hover */
 }
 
@@ -82,7 +114,7 @@ h1 {
 }
 
 h2 {
-  font-family: 'Changa One', cursive; /* Secondary header font */
+  font-family: 'Montserrat', cursive; /* Secondary header font */
   font-size: 32px; /* Adjust size as needed */
   margin-bottom: 10px;
 }
@@ -304,4 +336,126 @@ button:hover {
 .form-switch-text span:hover {
   color: #D56F00; /* Hover color */
   text-decoration: underline; /* Underline on hover */
+}
+
+.my-library-page {
+  padding: 20px;
+}
+
+.library-header {
+  background-color: #045174;
+  color: white;
+  text-align: center;
+  padding: 10px 0;
+}
+
+.library-info {
+  margin: 20px 0;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.book-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.book-item {
+  background-color: #F8DCBF;
+  padding: 10px;
+  width: 100%;
+  max-width: 600px;
+  text-align: left;
+  border-radius: 5px;
+}
+
+.empty-shelf {
+  text-align: center;
+}
+
+.explore-btn {
+  background-color: #FA9939;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.explore-btn:hover {
+  background-color: #D56F00;
+}
+
+/* Card Styling */
+.card {
+  background-color: #F8DCBF;
+  border: 1px solid #DBC0A4;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+/* Dashboard Styling */
+.dashboard {
+  background-color: #045174;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.dashboard h2 {
+  margin-bottom: 10px;
+}
+
+.dashboard p {
+  font-size: 18px;
+}
+
+/* Book List Styling */
+.book-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.book-item {
+  background-color: #F8DCBF;
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #DBC0A4;
+}
+
+.book-item img {
+  width: 80px;
+  height: 120px;
+  margin-right: 20px;
+}
+
+.book-item h3 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.book-item p {
+  font-size: 16px;
+  color: #7A918D;
+  margin: 5px 0;
+}
+
+.book-item button {
+  margin-left: auto;
+  background-color: #FA9939;
+}
+
+.book-item button:hover {
+  background-color: #D56F00;
 }

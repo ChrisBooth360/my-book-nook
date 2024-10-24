@@ -6,6 +6,7 @@ import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import Header from './components/Header'; // Keep the Header for authenticated pages
+import MyLibrary from './pages/MyLibrary';
 import './App.css';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/my-library" element={<MyLibrary />} />
       </Routes>
     </div>
   );

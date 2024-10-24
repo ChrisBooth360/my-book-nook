@@ -1,6 +1,6 @@
 // src/pages/HomePage.js
 import React, { useState } from 'react';
-import { loginUser, registerUser } from '../services/api'; // Import both login and register functions
+import { loginUser, registerUser } from '../services/api'; // Import the register function
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import '../App.css'; // Custom styles
 import headerLogo from '../assets/book-nook-sq-logo-slogan.png';
@@ -9,6 +9,7 @@ const HomePage = () => {
   const [formType, setFormType] = useState(null); // State to track form (login/register)
   const [formData, setFormData] = useState({ email: '', password: '', username: '' }); // Track form inputs
   const [error, setError] = useState(null); // State for error messages
+  const [successMessage, setSuccessMessage] = useState(null); // State for success message
   const navigate = useNavigate(); // Initialize useNavigate
 
   const handleChange = (e) => {
@@ -23,7 +24,8 @@ const HomePage = () => {
       console.log('Login successful:', response.data); // Log response
       localStorage.setItem('token', response.data.token); // Store token in local storage
       setError(null);
-      navigate('/profile'); // Redirect to the profile page
+      setSuccessMessage(null); // Clear success message
+      navigate('/my-library'); // Redirect to the library page
     } catch (err) {
       console.error('Login error:', err.response || err.message); // Log error details
       setError('Login failed. Please check your credentials.');
@@ -37,7 +39,8 @@ const HomePage = () => {
       const response = await registerUser(formData); // Call the register function
       console.log('Registration successful:', response.data); // Log response
       setError(null);
-      navigate('/login'); // Redirect to the login page after registration
+      setSuccessMessage("You've successfully registered! Login to make it official."); // Set success message
+      setFormType('login'); // Switch to login form
     } catch (err) {
       console.error('Registration error:', err.response || err.message); // Log error details
       setError('Registration failed. Please try again.');
@@ -48,6 +51,7 @@ const HomePage = () => {
     if (formType === 'login') {
       return (
         <div className="auth-form">
+          {successMessage && <p style={{ color: '#FA9939' }}>{successMessage}</p>} {/* Show success message */}
           {error && <p style={{ color: 'red' }}>{error}</p>} {/* Show error message */}
           <form onSubmit={handleLogin}> {/* Add onSubmit handler */}
             <input

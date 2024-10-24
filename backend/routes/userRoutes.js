@@ -75,7 +75,12 @@ router.get('/', authMiddleware, async (req, res) => {
         // Find the user by their ID and populate the bookId field with full book details
         const user = await User.findById(req.user.id).populate('books.bookId');
         
-        if (!user || !user.books.length) {
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if user has any books
+        if (!user.books.length) {
             return res.status(404).json({ message: 'No books found in your collection' });
         }
 
@@ -86,11 +91,17 @@ router.get('/', authMiddleware, async (req, res) => {
             bookId: userBook.bookId, // Populated book details
         }));
 
-        res.json(userBooksWithDetails); // Return books with both user-specific and full book details
+        // Send the username along with the books in the response
+        res.json({
+            username: user.username, // Include username in the response
+            books: userBooksWithDetails // Include detailed book data
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
+
+
 
 // Update user book status (protected route)
 router.put('/:bookId/status', authMiddleware, async (req, res) => {
@@ -136,8 +147,8 @@ router.delete('/:bookId', authMiddleware, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if the book exists in the user's collection
-        const bookIndex = user.books.findIndex(book => book.bookId.toString() === bookId);
+        // Check if the book exists in the user's collection using strict ObjectId comparison
+        const bookIndex = user.books.findIndex(book => book.bookId.equals(bookId));
 
         if (bookIndex === -1) {
             return res.status(404).json({ message: 'Book not found in your collection' });
@@ -155,6 +166,7 @@ router.delete('/:bookId', authMiddleware, async (req, res) => {
         res.status(500).json({ message: 'Error removing book from your collection' });
     }
 });
+
 
 
 // Search user's collection for a book by title or author
