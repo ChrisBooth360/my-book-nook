@@ -29,7 +29,8 @@ function Header() {
       </div>
       <nav className="header-right nav-menu">
       <ul>
-          <li><a href="/">Explore</a></li>
+          <li><a href="/my-library">My Library</a></li>
+          <li><a href="/explore">Explore</a></li>
           {isLoggedIn && <li><a href="/profile">Profile</a></li>}
           {isLoggedIn ? (
             <li><a href="/" onClick={handleLogout}>Logout</a></li>

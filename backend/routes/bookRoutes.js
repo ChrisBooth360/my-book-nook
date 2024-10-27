@@ -24,33 +24,31 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Search Google Books API for books
+// Get search results from Google Books API with pagination
 router.get('/search', authMiddleware, async (req, res) => {
-    const { query } = req.query // Get the search query from the request
+    const { query, startIndex = 0, maxResults = 10 } = req.query;
 
     if (!query) {
         return res.status(400).json({ message: 'Please provide a search query' });
     }
 
     try {
-        // GET request to the Google Books API
         const response = await axios.get('https://www.googleapis.com/books/v1/volumes', {
             params: {
-                q: query, // The user's search query
-                key: process.env.GOOGLE_BOOKS_API_KEY, // Google Books API key (stored in .env file)
-                maxResults: 10 // Limit the number of results to 10
+                q: query,
+                key: process.env.GOOGLE_BOOKS_API_KEY,
+                startIndex: Number(startIndex),
+                maxResults: Number(maxResults),
             }
-        })
+        });
 
-        // Return the books found from Google Books
         res.json(response.data.items);
-
     } catch (error) {
         console.error('Error searching Google Books:', error.message);
         res.status(500).json({ message: 'Error searching for books' });
     }
-
 });
+
 
 // Add a new book (protected route)
 router.post('/search/add', authMiddleware, async (req, res) => {
