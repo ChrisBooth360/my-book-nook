@@ -1,17 +1,61 @@
 /* src/App.css */
 
-/* General Styling */
+/* ================= General Styling ================= */
 body {
-  background-color: #F8DCBF; /* Off-white main background */
+  background-color: #fff9f3; /* Off-white main background */
   font-family: 'Open Sans', sans-serif; /* Main text font */
   color: #191919; /* Black for majority of text */
   margin: 0;
   padding: 0;
 }
 
-/* Header Styling */
+h1, h2 {
+  color: #191919;
+}
+
+h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  font-family: 'Montserrat', sans-serif; /* Primary header font */
+}
+
+h2 {
+  font-family: 'Montserrat', cursive; /* Secondary header font */
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+p {
+  color: #191919;
+  font-size: 18px;
+}
+
+button {
+  background-color: #FA9939;
+  color: #191919;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #D56F00;
+  color: #FFFBFC;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ================= Header Styling ================= */
 .header {
-  background-color: #045174; /* Primary color for header */
+  background-color: #045174;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -19,29 +63,17 @@ body {
   height: 75px;
 }
 
-.header-left {
+.header-left, .header-middle, .header-right {
   flex: 1;
 }
 
 .header-middle {
-  flex: 2;
   display: flex;
   justify-content: center;
 }
 
-.header-right {
-  flex: 1;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.logo-link {
-  display: flex;
-  align-items: center;
-}
-
 .header-logo {
-  height: 75px; /* Adjust the height to fit your header */
+  height: 75px;
 }
 
 .search-bar {
@@ -50,7 +82,7 @@ body {
   padding: 8px;
   font-size: 16px;
   border-radius: 5px;
-  border: 1px solid #DBC0A4; /* Additional color for input border */
+  border: 1px solid #DBC0A4;
 }
 
 .nav-menu ul {
@@ -65,32 +97,25 @@ body {
   display: inline;
 }
 
-.nav-menu ul li a,
-.logout-btn {
-  color: #F8DCBF; /* Light color for contrast against the header */
+.nav-menu ul li a, .logout-btn {
+  color: #F8DCBF;
   text-decoration: none;
   font-size: 18px;
   font-weight: bold;
-}
-
-.nav-menu ul li a:hover,
-.logout-btn:hover {
-  color: #FA9939; /* Highlight color on hover */
 }
 
 .logout-btn {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 18px;
 }
 
-.logout-btn:hover {
-  color: #FA9939; /* Highlight color on hover */
+.nav-menu ul li a:hover, .logout-btn:hover {
+  color: #FA9939;
 }
 
 .btn.my-library-btn {
-  background-color: #FA9939; /* Standout button color */
+  background-color: #FA9939;
   color: #191919;
   padding: 10px 15px;
   border-radius: 5px;
@@ -101,132 +126,11 @@ body {
 }
 
 .btn.my-library-btn:hover {
-  background-color: #D56F00; /* Hover color for button */
-  color: #FFFBFC; /* White text on hover */
+  background-color: #D56F00;
+  color: #FFFBFC;
 }
 
-/* Typography */
-h1 {
-  color: #191919;
-  font-size: 32px;
-  margin-bottom: 10px;
-  font-family: 'Montserrat', sans-serif; /* Primary header font */
-}
-
-h2 {
-  font-family: 'Montserrat', cursive; /* Secondary header font */
-  font-size: 32px; /* Adjust size as needed */
-  margin-bottom: 10px;
-}
-
-.header-text {
-  font-family: 'Montserrat', sans-serif;
-}
-
-.sub-header-text {
-  font-family: 'Changa One', cursive;
-}
-
-
-p {
-  color: #191919;
-  font-size: 18px;
-}
-
-/* Button Styling */
-button {
-  background-color: #FA9939; /* Highlight color for buttons */
-  color: #191919; /* Black text */
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 20px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #D56F00; /* Hover color for buttons */
-  color: #FFFBFC; /* White text on hover */
-}
-
-/* Additional Styling */
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.card {
-  background-color: #F8DCBF; /* Secondary color for card background */
-  border: 1px solid #DBC0A4; /* Additional color for card border */
-  padding: 20px;
-  border-radius: 8px;
-  margin: 20px 0;
-}
-
-.card h2 {
-  color: #191919;
-}
-
-.card p {
-  color: #7A918D; /* Keeping a different tone for card text */
-}
-
-/* Button-like styling for Links */
-.btn {
-  display: inline-block;
-  background-color: #FA9939; /* Highlight color for buttons */
-  color: #191919;
-  padding: 10px 20px;
-  text-align: center;
-  text-decoration: none;
-  font-size: 16px;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 20px;
-}
-
-.btn:hover {
-  background-color: #D56F00; /* Hover color */
-  color: #FFFBFC; /* White text on hover */
-}
-
-/* Book List Styling */
-.book-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.book-item {
-  background-color: #F8DCBF; /* Secondary color for book item background */
-  border: 1px solid #DBC0A4; /* Additional color for book item border */
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.book-item h3 {
-  color: #191919;
-  font-size: 24px;
-  margin-bottom: 5px;
-}
-
-.book-item p {
-  color: #7A918D;
-  font-size: 16px;
-}
-
-/* Error Styling */
-.error {
-  color: #D56F00; /* Hover color for errors */
-  font-weight: bold;
-}
-
-/* General styling for the homepage */
+/* ================= Homepage Styling ================= */
 .logged-out-homepage {
   display: flex;
   flex-direction: column;
@@ -248,20 +152,17 @@ button:hover {
   margin-bottom: 30px;
 }
 
-/* Flex container to align the buttons side by side */
 .auth-buttons {
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-bottom: 20px; /* Adds space between the buttons and the form */
+  margin-bottom: 20px;
 }
 
-/* Style for the login and register buttons */
 .auth-btn, .form-btn {
   background-color: #FA9939;
   color: white;
   padding: 10px 20px;
-  text-decoration: none;
   font-size: 1.2rem;
   border-radius: 5px;
   transition: background-color 0.3s;
@@ -271,16 +172,15 @@ button:hover {
   background-color: #D56F00;
 }
 
-/* Form styling */
+/* ================= Form Styling (Used on Login/Register) ================= */
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Adds space between the input fields */
-  align-items: center; /* Centers items in the form */
-  margin-bottom: 20px; /* Adds space below the form */
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
 }
 
-/* Form input fields */
 .form-input {
   padding: 10px;
   font-size: 1.1rem;
@@ -294,16 +194,14 @@ button:hover {
   border-color: #D56F00;
 }
 
-/* Container to align the login and back button */
 .form-buttons {
   display: flex;
-  justify-content: center; /* Centers the buttons */
-  gap: 10px; /* Adds space between buttons */
+  justify-content: center;
+  gap: 10px;
   margin-top: 10px;
-  width: 100%; /* Ensures it uses full width */
+  width: 100%;
 }
 
-/* Back button style */
 .back-btn {
   background-color: transparent;
   color: #FA9939;
@@ -313,32 +211,34 @@ button:hover {
 }
 
 .back-btn:hover {
-  background-color: transparent;
   color: #D56F00;
   text-decoration: underline;
 }
 
-/* Link text at the bottom of the forms for navigation */
 .form-switch-text {
   color: #fff;
   margin-top: 10px;
   font-size: 0.9rem;
-  text-align: center; /* Centers the text */
+  text-align: center;
 }
 
 .form-switch-text span {
-  color: #FA9939; /* Register/Login text color */
+  color: #FA9939;
   cursor: pointer;
   font-weight: bold;
-  text-decoration: none; /* Remove underline */
+  text-decoration: none;
 }
 
 .form-switch-text span:hover {
-  color: #D56F00; /* Hover color */
-  text-decoration: underline; /* Underline on hover */
+  color: #D56F00;
+  text-decoration: underline;
 }
 
+/* ================= MyLibrary Page Styling ================= */
 .my-library-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
 }
 
@@ -353,22 +253,6 @@ button:hover {
   margin: 20px 0;
   font-size: 1.5rem;
   text-align: center;
-}
-
-.book-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  align-items: center;
-}
-
-.book-item {
-  background-color: #F8DCBF;
-  padding: 10px;
-  width: 100%;
-  max-width: 600px;
-  text-align: left;
-  border-radius: 5px;
 }
 
 .empty-shelf {
@@ -389,73 +273,308 @@ button:hover {
   background-color: #D56F00;
 }
 
-/* Card Styling */
-.card {
-  background-color: #F8DCBF;
-  border: 1px solid #DBC0A4;
+/* ================= Dashboard Styling ================= */
+.dashboard {
+  width: 70%;
+  background-color: #001f3d; /* Updated background color */
+  color: #f8dcbf; /* Updated text color */
   padding: 20px;
-  border-radius: 8px;
-  margin: 20px 0;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px #dbc0a4;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center; /* Center-align text content */
 }
 
-/* Dashboard Styling */
-.dashboard {
-  background-color: #045174;
-  color: white;
-  padding: 20px;
+.dashboard-header {
+  flex: 3;
+}
+
+.dashboard-header h2 {
+  color: #f8dcbf; /* Updated header title color */
+  margin: 0;
+}
+
+.dashboard-stats {
+  display: flex;
+  align-items: baseline;
+}
+
+.total-books {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.books-label {
+  font-size: 1rem;
+}
+
+.dashboard-info {
+  margin-top: 10px;
+  display: flex;
+  gap: 20px;
+}
+
+.featured-book {
+  flex: 1;
+  background-color: #d56f00;
   border-radius: 8px;
-  margin-bottom: 30px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
-.dashboard h2 {
-  margin-bottom: 10px;
+.featured-book img {
+  width: 60px;
+  height: 80px;
+  margin-bottom: 8px;
 }
 
-.dashboard p {
-  font-size: 18px;
+.featured-info h3 {
+  font-size: 1.2rem;
+  margin: 5px 0;
 }
 
-/* Book List Styling */
+.featured-info p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.featured-info .btn {
+  margin: 5px;
+  background-color: #f8dcbb;
+  color: #000;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* ================= Book List Styling ================= */
 .book-list {
-  list-style: none;
-  padding: 0;
+  width: 70%;
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
+/* ================= Book Item Styling ================= */
 .book-item {
-  background-color: #F8DCBF;
   display: flex;
   align-items: center;
+  background-color: #f8dcbf;
+  border-radius: 12px;
   padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #DBC0A4;
+  box-shadow: 0px 4px 8px #dbc0a4;
 }
 
 .book-item img {
   width: 80px;
   height: 120px;
-  margin-right: 20px;
+  margin-right: 15px;
+  border-radius: 5px;
 }
 
-.book-item h3 {
-  font-size: 24px;
+.book-details {
+  flex-grow: 1;
+}
+
+.book-details h3 {
+  font-size: 1.2rem;
   margin: 0;
 }
 
-.book-item p {
-  font-size: 16px;
-  color: #7A918D;
+.book-details p {
+  font-size: 1rem;
+  color: #333;
   margin: 5px 0;
 }
 
-.book-item button {
-  margin-left: auto;
-  background-color: #FA9939;
+.book-actions {
+  display: flex;
+  gap: 10px;
 }
 
-.book-item button:hover {
+.book-actions .btn {
+  background-color: #fa9939;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.book-actions .btn:hover {
+  background-color: #d56f00;
+}
+
+/* ================= Empty Shelf Styling ================= */
+.empty-shelf {
+  text-align: center;
+}
+
+.explore-btn {
+  background-color: #fa9939;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  margin-top: 15px;
+  cursor: pointer;
+}
+
+.explore-btn:hover {
+  background-color: #d56f00;
+}
+
+/* ================= Profile Page Styling ================= */
+.profile-page {
+  background-color: #fff9f2;
+  color: #191919;
+  padding: 2rem;
+  width: 70%;
+  margin: auto;
+  box-shadow: 0px 4px 8px rgba(219, 192, 164, 0.2);
+  border-radius: 12px;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.profile-info, .update-form, .password-form {
+  background-color: #F8DCBF;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(219, 192, 164, 0.2);
+}
+
+h2 {
+  font-family: 'Montserrat', sans-serif;
+  color: #045174;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.3rem;
+  border: 1px solid #D56F00;
+  border-radius: 8px;
+}
+
+button {
+  background-color: #FA9939;
+  color: #fff;
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+button:hover {
   background-color: #D56F00;
 }
+
+.message {
+  color: #045174;
+  font-weight: bold;
+}
+
+/* ================= Explore Page Styling ================= */
+.book-card {
+  background-color: #F8DCBF;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* ================= Explore Page Styling ================= */
+
+.explore-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.search-container {
+  margin: 20px 0;
+  width: 400px;
+  display: flex;
+  justify-content: center;
+}
+
+.error-message {
+  color: #D56F00;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+/* Book Card Styling (matches MyLibrary styling) */
+.book-card {
+  display: flex;
+  align-items: center;
+  background-color: #F8DCBF;
+  border-radius: 12px;
+  padding: 15px;
+  margin: 10px 0;
+  width: 70%;
+  box-shadow: 0px 4px 8px rgba(219, 192, 164, 0.5);
+}
+
+.book-card img {
+  width: 80px;
+  height: 120px;
+  margin-right: 15px;
+  border-radius: 5px;
+}
+
+.book-details {
+  flex-grow: 1;
+}
+
+.book-details h3 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.book-details p {
+  font-size: 1rem;
+  color: #333;
+  margin: 5px 0;
+}
+
+.add-to-shelf-btn {
+  background-color: #FA9939;
+  color: #fff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-to-shelf-btn:hover {
+  background-color: #D56F00;
+}
+

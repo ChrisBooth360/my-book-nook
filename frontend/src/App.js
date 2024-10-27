@@ -5,8 +5,9 @@ import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
-import Header from './components/Header'; // Keep the Header for authenticated pages
 import MyLibrary from './pages/MyLibrary';
+import Explore from './pages/Explore'; 
+import Header from './components/Header'; // Keep the Header for authenticated pages
 import './App.css';
 
 function App() {
@@ -14,9 +15,10 @@ function App() {
 
   return (
     <div>
-      {isLoggedIn && <Header />} {/* Render Header only when logged in */}
+      {isLoggedIn && <Header />}
       <Routes>
         <Route path="/" element={isLoggedIn ? <ProfilePage /> : <HomePage />} />
+        <Route path="/explore" element={<Explore />} /> {/* Add this line */}
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
