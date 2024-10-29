@@ -1,3 +1,4 @@
+// services/api.js
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001/api';
@@ -55,4 +56,22 @@ export const searchBooks = async (token, query, startIndex = 0) => {
     console.error("Fetch error: ", error);
     throw error;
   }
+};
+
+export const addBookToShelf = async (token, googleBookId, status) => {
+  return axios.post(
+    `${API_URL}/books/search/add`,
+    { googleBookId, status },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    }
+  );
+};
+
+export const checkBookStatus = async (token, isbn) => {
+  return axios.get(`${API_URL}/books/check-status/${isbn}`, {
+      headers: { Authorization: `Bearer ${token}` }
+  });
 };
