@@ -52,69 +52,73 @@ router.get('/search', authMiddleware, async (req, res) => {
 
 // Add a new book (protected route)
 router.post('/search/add', authMiddleware, async (req, res) => {
-    const { googleBookId } = req.body;
+    const { googleBookId, status = 'unread' } = req.body; // Accept status with default 'unread'
 
     if (!googleBookId) {
         return res.status(400).json({ message: 'Google Book ID is required' });
     }
 
     try {
-        // Fetch book details from Google Books API using the Google Book ID
+        // Fetch book details from Google Books API
         const { data: bookData } = await axios.get(`https://www.googleapis.com/books/v1/volumes/${googleBookId}`, {
-            params: {
-                key: process.env.GOOGLE_BOOKS_API_KEY
-            }
+            params: { key: process.env.GOOGLE_BOOKS_API_KEY }
         });
 
-        // Extract necessary book details from Google Books response
         const { title, authors, industryIdentifiers, description, categories, pageCount, publishedDate } = bookData.volumeInfo;
+        const isbn = industryIdentifiers.find(id => id.type === 'ISBN_13')?.identifier || industryIdentifiers[0].identifier;
 
-        if (!industryIdentifiers || industryIdentifiers.length === 0) {
-            return res.status(400).json({ message: 'No valid ISBN found for this book' });
-        }
-
-        const isbn = industryIdentifiers.find(identifier => identifier.type === 'ISBN_13')?.identifier || industryIdentifiers[0].identifier;
-
-        // Check if the book already exists in the database by its ISBN
+        // Check if the book already exists in the database
         let existingBook = await Book.findOne({ isbn });
-
         if (!existingBook) {
-            // If the book doesn't exist, create and save a new one
             existingBook = new Book({
+                googleBookId,  // Include googleBookId when creating a new book
                 title,
-                author: authors ? authors.join(', ') : 'Unknown Author',
+                author: authors?.join(', ') || 'Unknown Author',
                 isbn,
                 description,
                 genre: categories || [],
                 numberOfPages: pageCount || 0,
                 publicationDate: publishedDate
             });
-
             await existingBook.save();
         }
 
-        // Find the authenticated user and check if the book is already in their collection
         const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ message: 'User not found' });
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
+        // Check if the book is already in the user's library
         const bookExists = user.books.some(book => book.bookId.toString() === existingBook._id.toString());
         if (bookExists) {
             return res.status(400).json({ message: 'Book already exists in your collection' });
         }
 
-        // Add the book to the user's collection
-        user.books.push({ bookId: existingBook._id, status: 'unread' });
+        // Add the book to the user's collection if not present
+        user.books.push({ bookId: existingBook._id, status });
         await user.save();
 
-        res.status(200).json({ message: 'Book added successfully' });
+        res.status(200).json({ message: `Book added successfully with status ${status}` });
     } catch (error) {
         console.error('Error adding book from Google:', error.message);
         res.status(500).json({ message: 'Error adding book from Google' });
     }
 });
+
+// Check if a book is already in the user's library and get its status
+router.get('/check-status/:googleBookId', authMiddleware, async (req, res) => {
+    const { googleBookId } = req.params;
+    try {
+        const user = await User.findById(req.user.id).populate('books.bookId');
+        const book = user.books.find((b) => b.bookId.googleBookId === googleBookId);
+        if (book) {
+            return res.status(200).json({ exists: true, status: book.status });
+        }
+        res.status(200).json({ exists: false });
+    } catch (error) {
+        console.error('Error checking book status:', error.message);
+        res.status(500).json({ message: 'Error checking book status' });
+    }
+});
+
 
 // Delete a book from the library (requires authentication)
 router.delete('/:bookId', authMiddleware, async (req, res) => {
