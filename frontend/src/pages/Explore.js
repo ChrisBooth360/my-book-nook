@@ -1,15 +1,32 @@
-// src/pages/Explore.js
-import React, { useState } from 'react';
-import { searchBooks, addBookToShelf, checkBookStatus } from '../services/api';
+import React, { useEffect, useState } from 'react';
+import { searchBooks, addBookToShelf, getUserBooks } from '../services/api';
 import '../App.css'; 
 import placeholderCover from '../assets/book-nook-placeholder.png';
 import SearchBar from '../components/SearchBar';
 
 const Explore = () => {
   const [books, setBooks] = useState([]);
+  const [userLibraryBooks, setUserLibraryBooks] = useState([]); // User library state
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState({}); // Status message state
+
+  // Fetch user library on component mount
+  useEffect(() => {
+    // Updated fetchUserLibrary with population
+    const fetchUserLibrary = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await getUserBooks(token); // Fetches books in user's library
+        const libraryBooks = response.data.books.map(book => book.bookId.googleBookId); // Populating googleBookId
+        setUserLibraryBooks(libraryBooks);
+        console.log("User Library Books (with googleBookId):", libraryBooks);
+      } catch (error) {
+        console.error("Error fetching user library:", error);
+      }
+    };
+    fetchUserLibrary();
+  }, []);
 
   const handleSearch = async (query) => {
     setLoading(true);
@@ -20,21 +37,24 @@ const Explore = () => {
 
     try {
       const response = await searchBooks(token, query);
+      console.log("Search Results:", response.map((book) => book.id));
 
-      const booksWithStatus = await Promise.all(response.map(async (book) => {
+      const booksWithStatus = response.map((book) => {
         const isbn = book.volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier;
-        const googleBookId = book.id; // Capture Google Book ID for adding to shelf
+        const googleBookId = book.id;
 
-        const statusResponse = isbn ? await checkBookStatus(token, isbn) : { exists: false };
-        
+        // Check if book is already in user's library
+        const existsInLibrary = userLibraryBooks.includes(googleBookId);
+        console.log("Exists in Library Check:", existsInLibrary, googleBookId);
+
         return {
           ...book,
           googleBookId,
-          existsInLibrary: statusResponse.exists,
-          status: statusResponse.status || null,
+          existsInLibrary,
+          status: existsInLibrary ? 'Already added' : null,
           isbn: isbn,
         };
-      }));
+      });
 
       setBooks(booksWithStatus);
     } catch (err) {
@@ -46,45 +66,22 @@ const Explore = () => {
 
   const handleAddToShelf = async (book) => {
     const token = localStorage.getItem('token');
-    
-    // Check if the book is already in the library
-    try {
-        const statusResponse = await checkBookStatus(token, book.isbn);
-        if (statusResponse.data.exists) {
-            setStatusMessage(prev => ({
-                ...prev,
-                [book.googleBookId]: 'The book is already in your collection'
-            }));
-            return;
-        }
-    } catch (error) {
-        console.error('Error checking book status:', error.message);
-        setStatusMessage(prev => ({
-            ...prev,
-            [book.googleBookId]: 'Error checking book status. Please try again.'
-        }));
-        return;
-    }
-  
-    try {
-        await addBookToShelf(token, book.googleBookId, 'unread');  // Use `googleBookId` for the add request
-        setBooks(prevBooks => prevBooks.map(b => 
-            b.googleBookId === book.googleBookId ? { ...b, existsInLibrary: true, status: 'unread' } : b
-        ));
-        setStatusMessage(prev => ({
-            ...prev,
-            [book.googleBookId]: 'Book added to your library successfully!'
-        }));
-    } catch (error) {
-        console.error('Error adding book:', error.message);
-        setStatusMessage(prev => ({
-            ...prev,
-            [book.googleBookId]: 'Error adding book. Please try again.'
-        }));
-    }
-};
 
-  
+    if (book.existsInLibrary) {
+      setStatusMessage(prev => ({ ...prev, [book.googleBookId]: 'Book already in your library' }));
+      return;
+    }
+
+    try {
+      const response = await addBookToShelf(token, book.googleBookId, 'unread');
+      setBooks(prevBooks => prevBooks.map(b => 
+        b.googleBookId === book.googleBookId ? { ...b, existsInLibrary: true, status: 'unread' } : b
+      ));
+      setStatusMessage(prev => ({ ...prev, [book.googleBookId]: response.message }));
+    } catch (error) {
+      console.error('Error adding book:', error.message);
+    }
+  };
 
   return (
     <div className="explore-page">
@@ -97,33 +94,34 @@ const Explore = () => {
       {error && <p className="error-message">{error}</p>}
 
       <div className="book-list">
-  {books.map((book) => (
-    <div key={book.googleBookId} className="book-card">
-      <img src={book.thumbnail || placeholderCover} alt="Book cover" />
-      <div className="book-details">
-        <h3>{book.volumeInfo.title}</h3>
-        <p>by {book.volumeInfo.authors?.join(', ')}</p>
-        {/* "Already added" display */}
-        {book.existsInLibrary && <span className="book-status">Already added</span>}
-        {statusMessage[book.googleBookId] && <p className="status-message">{statusMessage[book.googleBookId]}</p>}
+        {books.map((book) => (
+          <div key={book.googleBookId} className="book-card">
+            <img src={book.thumbnail || placeholderCover} alt="Book cover" />
+            <div className="book-details">
+              <h3>{book.volumeInfo.title}</h3>
+              <p>by {book.volumeInfo.authors?.join(', ')}</p>
+              {book.existsInLibrary && <span className="book-status">Already added</span>}
+            </div>
+            
+            {/* Button and Status Message */}
+            <button
+              className="btn add-to-shelf-btn"
+              onClick={() => handleAddToShelf(book)}
+              disabled={book.existsInLibrary}
+              style={{
+                  backgroundColor: book.existsInLibrary ? '#DBC0A4' : '#FA9939',
+                  cursor: book.existsInLibrary ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {book.existsInLibrary ? 'Added' : 'Add to Shelf'}
+            </button>
+            {statusMessage[book.googleBookId] && (
+              <p className="status-message">{statusMessage[book.googleBookId]}</p>
+            )}
+            {console.log("Rendering Button:", book.googleBookId, book.existsInLibrary)}
+          </div>
+        ))}
       </div>
-      
-      {/* TBR Button and Status Message */}
-      <button
-        className="btn add-to-shelf-btn"
-        onClick={() => handleAddToShelf(book)}
-        style={{
-          backgroundColor: book.existsInLibrary ? '#DBC0A4' : '#FA9939',
-          cursor: book.existsInLibrary ? 'not-allowed' : 'pointer',
-        }}
-        disabled={book.existsInLibrary}
-      >
-        Add to Shelf
-      </button>
-    </div>
-  ))}
-</div>
-
     </div>
   );
 };
