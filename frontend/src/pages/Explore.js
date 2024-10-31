@@ -1,26 +1,28 @@
+// src/pages/Explore.js
 import React, { useEffect, useState } from 'react';
 import { searchBooks, addBookToShelf, getUserBooks } from '../services/api';
-import '../App.css'; 
+import '../App.css';
 import placeholderCover from '../assets/book-nook-placeholder.png';
 import SearchBar from '../components/SearchBar';
 
 const Explore = () => {
   const [books, setBooks] = useState([]);
-  const [userLibraryBooks, setUserLibraryBooks] = useState([]); // User library state
+  const [userLibraryBooks, setUserLibraryBooks] = useState([]); 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState({}); // Status message state
+  const [statusMessage, setStatusMessage] = useState({});
+  const [dropdownVisible, setDropdownVisible] = useState({});
 
-  // Fetch user library on component mount
   useEffect(() => {
-    // Updated fetchUserLibrary with population
     const fetchUserLibrary = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await getUserBooks(token); // Fetches books in user's library
-        const libraryBooks = response.data.books.map(book => book.bookId.googleBookId); // Populating googleBookId
+        const response = await getUserBooks(token);
+        const libraryBooks = response.data.books.map(book => ({
+          googleBookId: book.bookId.googleBookId,
+          status: book.status,
+        }));
         setUserLibraryBooks(libraryBooks);
-        console.log("User Library Books (with googleBookId):", libraryBooks);
       } catch (error) {
         console.error("Error fetching user library:", error);
       }
@@ -37,25 +39,16 @@ const Explore = () => {
 
     try {
       const response = await searchBooks(token, query);
-      console.log("Search Results:", response.map((book) => book.id));
-
       const booksWithStatus = response.map((book) => {
-        const isbn = book.volumeInfo.industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier;
         const googleBookId = book.id;
-
-        // Check if book is already in user's library
-        const existsInLibrary = userLibraryBooks.includes(googleBookId);
-        console.log("Exists in Library Check:", existsInLibrary, googleBookId);
-
+        const userBook = userLibraryBooks.find(b => b.googleBookId === googleBookId);
         return {
           ...book,
           googleBookId,
-          existsInLibrary,
-          status: existsInLibrary ? 'Already added' : null,
-          isbn: isbn,
+          existsInLibrary: !!userBook,
+          status: userBook?.status || null,
         };
       });
-
       setBooks(booksWithStatus);
     } catch (err) {
       setError('Error fetching books. Please try again.');
@@ -64,22 +57,28 @@ const Explore = () => {
     }
   };
 
-  const handleAddToShelf = async (book) => {
-    const token = localStorage.getItem('token');
+  const toggleDropdown = (bookId) => {
+    setDropdownVisible(prev => ({ ...prev, [bookId]: !prev[bookId] }));
+  };
 
-    if (book.existsInLibrary) {
-      setStatusMessage(prev => ({ ...prev, [book.googleBookId]: 'Book already in your library' }));
-      return;
-    }
+  const handleStatusChange = async (book, status) => {
+    const token = localStorage.getItem('token');
+    const userBook = userLibraryBooks.find(b => b.googleBookId === book.googleBookId);
+    
+    if (userBook && userBook.status === status) return;
 
     try {
-      const response = await addBookToShelf(token, book.googleBookId, 'unread');
+      const response = await addBookToShelf(token, book.googleBookId, status);
+      setUserLibraryBooks(prev => [
+        ...prev.filter(b => b.googleBookId !== book.googleBookId),
+        { googleBookId: book.googleBookId, status }
+      ]);
       setBooks(prevBooks => prevBooks.map(b => 
-        b.googleBookId === book.googleBookId ? { ...b, existsInLibrary: true, status: 'unread' } : b
+        b.googleBookId === book.googleBookId ? { ...b, status, existsInLibrary: true } : b
       ));
       setStatusMessage(prev => ({ ...prev, [book.googleBookId]: response.message }));
     } catch (error) {
-      console.error('Error adding book:', error.message);
+      console.error('Error updating book status:', error.message);
     }
   };
 
@@ -100,25 +99,32 @@ const Explore = () => {
             <div className="book-details">
               <h3>{book.volumeInfo.title}</h3>
               <p>by {book.volumeInfo.authors?.join(', ')}</p>
-              {book.existsInLibrary && <span className="book-status">Already added</span>}
+              <span className="book-status">{book.status || 'Not in library'}</span>
             </div>
-            
-            {/* Button and Status Message */}
+
             <button
               className="btn add-to-shelf-btn"
-              onClick={() => handleAddToShelf(book)}
-              disabled={book.existsInLibrary}
+              onClick={() => handleStatusChange(book, 'unread')}
+              disabled={book.existsInLibrary && book.status === 'unread'}
               style={{
-                  backgroundColor: book.existsInLibrary ? '#DBC0A4' : '#FA9939',
-                  cursor: book.existsInLibrary ? 'not-allowed' : 'pointer'
+                backgroundColor: book.existsInLibrary ? '#DBC0A4' : '#FA9939',
+                cursor: book.existsInLibrary && book.status === 'unread' ? 'not-allowed' : 'pointer'
               }}
             >
               {book.existsInLibrary ? 'Added' : 'Add to Shelf'}
             </button>
+            
+            <button className="btn dropdown-btn" onClick={() => toggleDropdown(book.googleBookId)}>↓</button>
+            {dropdownVisible[book.googleBookId] && (
+              <div className="dropdown">
+                <button onClick={() => handleStatusChange(book, 'unread')} disabled={book.status === 'unread'}>TBR</button>
+                <button onClick={() => handleStatusChange(book, 'read')} disabled={book.status === 'read'}>Read</button>
+                <button onClick={() => handleStatusChange(book, 'currently reading')} disabled={book.status === 'currently reading'}>Reading</button>
+              </div>
+            )}
             {statusMessage[book.googleBookId] && (
               <p className="status-message">{statusMessage[book.googleBookId]}</p>
             )}
-            {console.log("Rendering Button:", book.googleBookId, book.existsInLibrary)}
           </div>
         ))}
       </div>

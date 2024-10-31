@@ -46,15 +46,23 @@ const addBookToUserCollection = async (req, res) => {
     }
 
     try {
+        // Fetch book data from Google Books API
         const { data: bookData } = await axios.get(`https://www.googleapis.com/books/v1/volumes/${googleBookId}`, {
             params: { key: process.env.GOOGLE_BOOKS_API_KEY }
         });
 
+        // Destructure relevant fields from the fetched data
         const { title, authors, industryIdentifiers, description, categories, pageCount, publishedDate } = bookData.volumeInfo;
-        const isbn = industryIdentifiers.find(id => id.type === 'ISBN_13')?.identifier || industryIdentifiers[0].identifier;
+        const isbn = industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier || industryIdentifiers?.[0]?.identifier;
 
+        if (!isbn) {
+            return res.status(400).json({ message: 'Book does not contain ISBN data' });
+        }
+
+        // Check if the book already exists in the database
         let existingBook = await Book.findOne({ isbn });
         if (!existingBook) {
+            // Create a new book entry if it doesn't exist
             existingBook = new Book({
                 googleBookId,
                 title,
@@ -68,17 +76,21 @@ const addBookToUserCollection = async (req, res) => {
             await existingBook.save();
         }
 
+        // Fetch the user's information
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: 'User not found' });
 
+        // Check if the book is already in the user's collection
         const bookExists = user.books.some(book => book.bookId.toString() === existingBook._id.toString());
         if (bookExists) {
             return res.status(200).json({ message: 'Book already in your collection' });
         }
 
+        // Add book to the user's collection with the specified status
         user.books.push({ bookId: existingBook._id, status });
         await user.save();
 
+        // Respond with success message and book ID
         res.status(200).json({ message: 'Book added successfully', bookId: existingBook._id });
     } catch (error) {
         console.error('Error adding book from Google:', error.message);
@@ -100,6 +112,7 @@ const checkBookStatus = async (req, res) => {
         res.status(500).json({ message: 'Error checking book status' });
     }
 };
+
 
 const deleteBookFromLibrary = async (req, res) => {
     const { bookId } = req.params;
