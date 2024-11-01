@@ -529,9 +529,19 @@ button:hover {
   color: #D56F00;
   font-weight: bold;
   margin-top: 10px;
+  text-align: center;
 }
 
-/* Book Card Styling (matches MyLibrary styling) */
+/* Book List Layout */
+.book-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centering the book cards */
+  width: 100%;
+}
+
+/* ================= Book Card Styling ================= */
+
 .book-card {
   display: flex;
   align-items: center;
@@ -539,8 +549,10 @@ button:hover {
   border-radius: 12px;
   padding: 15px;
   margin: 10px 0;
-  width: 70%;
+  width: 60%;
+  max-width: 700px;
   box-shadow: 0px 4px 8px rgba(219, 192, 164, 0.5);
+  position: relative;
 }
 
 .book-card img {
@@ -552,6 +564,8 @@ button:hover {
 
 .book-details {
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .book-details h3 {
@@ -565,81 +579,125 @@ button:hover {
   margin: 5px 0;
 }
 
-/* Main button for adding to shelf */
+/* Book Status Styling */
+.book-status {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-weight: bold;
+  font-size: 1rem;
+  color: #FA9939;
+}
+
+/* ================= Button Styling ================= */
+
 .add-to-shelf-btn {
+  width: 110px;
   background-color: #FA9939;
-  color: #fff;
+  color: white;
   border: none;
-  border-radius: 5px;
+  padding: 10px 5px;
+  font-size: 16px;
   cursor: pointer;
+  border-radius: 8px 0 0 8px;
   margin-top: 10px;
-  margin-right: 5px;
-  padding: 5px 10px;
 }
 
 .add-to-shelf-btn:hover {
   background-color: #D56F00;
 }
 
-/* Dropdown toggle button */
-.btn.dropdown-toggle {
+.dropdown-btn {
   background-color: #FA9939;
   color: white;
-  padding: 5px;
+  padding: 10px 12px;
+  border: none;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 0 8px 8px 0;
   margin-top: 10px;
+  font-size: 16px;
 }
 
-/* Dropdown container */
-.dropdown-container {
+/* Dropdown Menu Styling */
+.button-group {
   position: relative;
   display: inline-flex;
   align-items: center;
-  margin-top: 10px;
 }
 
-/* Dropdown menu */
-.dropdown-menu {
-  display: flex;
-  flex-direction: column;
+.dropdown {
   position: absolute;
   top: 100%;
   left: 0;
+  display: flex;
+  flex-direction: column;
   background-color: #FA9939;
-  border-radius: 5px;
+  border-radius: 0 0 8px 8px;
   padding: 5px 0;
+  width: 100%;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1;
-  min-width: 100%;
 }
 
-/* Dropdown item styling */
-.dropdown-item {
+.dropdown button {
   background-color: #FA9939;
-  color: #fff;
+  color: white;
   border: none;
-  padding: 8px 10px;
-  text-align: left;
+  padding: 10px;
+  font-size: 14px;
   cursor: pointer;
-  font-size: 0.9rem;
+  text-align: left;
+  width: 100%;
 }
 
-.dropdown-item:hover {
+.dropdown button:hover {
   background-color: #D56F00;
 }
 
-.book-status {
+/* ================= Status Message Styling ================= */
+.status-message {
   position: absolute;
-  top: 10px;
+  bottom: 10px;
   right: 10px;
   color: #D56F00;
   font-weight: bold;
   font-size: 0.9rem;
 }
 
-.status-message {
-  color: #D56F00;
-  font-size: 0.85rem;
-  margin-top: 5px;
+/* Search Bar Styling */
+.search-form {
+  display: flex; /* Use flexbox to align input and button */
+  justify-content: flex-start; /* Align items to the left */
+  align-items: center; /* Center items vertically */
+  gap: 10px; /* Space between input and button */
+  margin: 20px auto; /* Center the form and add some margin */
 }
+
+.search-input {
+  width: 1600px; /* Set input width */
+  padding: 10px; /* Add some padding for better usability */
+  font-size: 16px; /* Match font size with other inputs */
+  border-radius: 5px; /* Rounded corners */
+  border: 1px solid #DBC0A4; /* Input border */
+  outline: none; /* Remove default outline */
+  box-sizing: border-box; /* Ensure padding is included in width */
+}
+
+.search-button {
+  background-color: #FA9939; /* Button background color */
+  color: #FFFBFC; /* Button text color */
+  border: none; /* Remove border */
+  padding: 10px 20px; /* Button padding */
+  font-size: 16px; /* Button font size */
+  border-radius: 5px; /* Rounded corners for button */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease; /* Smooth transition for hover */
+  height: 42px; /* Match the height of the input field */
+}
+
+.search-button:hover {
+  background-color: #D56F00; /* Change background color on hover */
+  color: #FFFBFC; /* Change text color on hover */
+}
+
+

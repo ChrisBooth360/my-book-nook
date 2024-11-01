@@ -1,5 +1,4 @@
-// src/pages/Explore.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { searchBooks, addBookToShelf, getUserBooks } from '../services/api';
 import '../App.css';
 import placeholderCover from '../assets/book-nook-placeholder.png';
@@ -7,11 +6,12 @@ import SearchBar from '../components/SearchBar';
 
 const Explore = () => {
   const [books, setBooks] = useState([]);
-  const [userLibraryBooks, setUserLibraryBooks] = useState([]); 
+  const [userLibraryBooks, setUserLibraryBooks] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState({});
   const [dropdownVisible, setDropdownVisible] = useState({});
+  const dropdownRef = useRef({}); // Create a ref to hold dropdown references
 
   useEffect(() => {
     const fetchUserLibrary = async () => {
@@ -58,33 +58,62 @@ const Explore = () => {
   };
 
   const toggleDropdown = (bookId) => {
-    setDropdownVisible(prev => ({ ...prev, [bookId]: !prev[bookId] }));
+    setDropdownVisible(prev => {
+      const newDropdownVisible = { ...prev, [bookId]: !prev[bookId] };
+      // Close other dropdowns if any are open
+      Object.keys(newDropdownVisible).forEach(key => {
+        if (key !== bookId) newDropdownVisible[key] = false;
+      });
+      return newDropdownVisible;
+    });
   };
 
   const handleStatusChange = async (book, status) => {
     const token = localStorage.getItem('token');
-    const userBook = userLibraryBooks.find(b => b.googleBookId === book.googleBookId);
-    
-    if (userBook && userBook.status === status) return;
 
     try {
       const response = await addBookToShelf(token, book.googleBookId, status);
+
       setUserLibraryBooks(prev => [
         ...prev.filter(b => b.googleBookId !== book.googleBookId),
         { googleBookId: book.googleBookId, status }
       ]);
-      setBooks(prevBooks => prevBooks.map(b => 
-        b.googleBookId === book.googleBookId ? { ...b, status, existsInLibrary: true } : b
-      ));
+
+      setBooks(prevBooks =>
+        prevBooks.map(b =>
+          b.googleBookId === book.googleBookId ? { ...b, status, existsInLibrary: true } : b
+        )
+      );
       setStatusMessage(prev => ({ ...prev, [book.googleBookId]: response.message }));
     } catch (error) {
       console.error('Error updating book status:', error.message);
     }
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const dropdownKeys = Object.keys(dropdownVisible);
+      dropdownKeys.forEach(key => {
+        if (
+          dropdownVisible[key] && 
+          dropdownRef.current[key] && 
+          !dropdownRef.current[key].contains(event.target)
+        ) {
+          setDropdownVisible(prev => ({ ...prev, [key]: false }));
+        }
+      });
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [dropdownVisible]);
+
   return (
     <div className="explore-page">
-      <h1>Explore Books</h1>
+      <h2>Find your next read...</h2>
       <div className="search-container">
         <SearchBar onSearch={handleSearch} />
       </div>
@@ -97,31 +126,71 @@ const Explore = () => {
           <div key={book.googleBookId} className="book-card">
             <img src={book.thumbnail || placeholderCover} alt="Book cover" />
             <div className="book-details">
+              <span className="book-status">
+                {book.status === 'unread' && 'This book is currently on your TBR'}
+                {book.status === 'read' && 'You have read this book'}
+                {book.status === 'currently reading' && 'You are reading this book'}
+              </span>
               <h3>{book.volumeInfo.title}</h3>
               <p>by {book.volumeInfo.authors?.join(', ')}</p>
-              <span className="book-status">{book.status || 'Not in library'}</span>
             </div>
 
-            <button
-              className="btn add-to-shelf-btn"
-              onClick={() => handleStatusChange(book, 'unread')}
-              disabled={book.existsInLibrary && book.status === 'unread'}
-              style={{
-                backgroundColor: book.existsInLibrary ? '#DBC0A4' : '#FA9939',
-                cursor: book.existsInLibrary && book.status === 'unread' ? 'not-allowed' : 'pointer'
-              }}
-            >
-              {book.existsInLibrary ? 'Added' : 'Add to Shelf'}
-            </button>
-            
-            <button className="btn dropdown-btn" onClick={() => toggleDropdown(book.googleBookId)}>↓</button>
-            {dropdownVisible[book.googleBookId] && (
-              <div className="dropdown">
-                <button onClick={() => handleStatusChange(book, 'unread')} disabled={book.status === 'unread'}>TBR</button>
-                <button onClick={() => handleStatusChange(book, 'read')} disabled={book.status === 'read'}>Read</button>
-                <button onClick={() => handleStatusChange(book, 'currently reading')} disabled={book.status === 'currently reading'}>Reading</button>
-              </div>
-            )}
+            <div className="button-group">
+              <button
+                className="btn add-to-shelf-btn"
+                onClick={() => handleStatusChange(book, 'unread')}
+                disabled={book.existsInLibrary}
+                style={{
+                  backgroundColor: book.existsInLibrary ? '#DBC0A4' : '#FA9939',
+                  cursor: book.existsInLibrary ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {book.existsInLibrary ? 'On Shelf' : 'Add to Shelf'}
+              </button>
+
+              <button
+                className="btn dropdown-btn"
+                onClick={() => toggleDropdown(book.googleBookId)}
+              >
+                ▼
+              </button>
+
+              {dropdownVisible[book.googleBookId] && (
+                <div ref={el => dropdownRef.current[book.googleBookId] = el} className="dropdown">
+                  <button
+                    onClick={() => handleStatusChange(book, 'unread')}
+                    disabled={book.status === 'unread'}
+                    style={{
+                      backgroundColor: book.status === 'unread' ? '#DBC0A4' : '#FA9939',
+                      cursor: book.status === 'unread' ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    TBR
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(book, 'read')}
+                    disabled={book.status === 'read'}
+                    style={{
+                      backgroundColor: book.status === 'read' ? '#DBC0A4' : '#FA9939',
+                      cursor: book.status === 'read' ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    Read
+                  </button>
+                  <button
+                    onClick={() => handleStatusChange(book, 'currently reading')}
+                    disabled={book.status === 'currently reading'}
+                    style={{
+                      backgroundColor: book.status === 'currently reading' ? '#DBC0A4' : '#FA9939',
+                      cursor: book.status === 'currently reading' ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    Reading
+                  </button>
+                </div>
+              )}
+            </div>
+
             {statusMessage[book.googleBookId] && (
               <p className="status-message">{statusMessage[book.googleBookId]}</p>
             )}
