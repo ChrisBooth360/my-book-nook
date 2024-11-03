@@ -7,7 +7,7 @@ router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 router.post('/logout', authMiddleware, userController.logoutUser);
 router.get('/', authMiddleware, userController.getUserBooks);
-router.put('/:bookId/status', authMiddleware, userController.updateBookStatus);
+router.put('/:googleBookId/status', authMiddleware, userController.updateBookStatus);
 router.delete('/:bookId', authMiddleware, userController.removeBook);
 router.get('/search', authMiddleware, userController.searchUserBooks);
 router.get('/profile', authMiddleware, userController.getUserProfile);

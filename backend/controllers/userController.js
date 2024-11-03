@@ -92,19 +92,27 @@ exports.getUserBooks = async (req, res) => {
 // Update user book status
 exports.updateBookStatus = async (req, res) => {
     const { status } = req.body;
-    const { bookId } = req.params;
+    const { googleBookId } = req.params;
 
     try {
+        // Find the Book by googleBookId to get its ObjectId
+        const bookData = await Book.findOne({ googleBookId });
+        if (!bookData) {
+            return res.status(404).json({ message: 'Book not found in the database' });
+        }
+
         const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const book = user.books.find(book => book.bookId.toString() === bookId);
+        // Find the user's book using the ObjectId
+        const book = user.books.find(book => book.bookId.toString() === bookData._id.toString());
         if (!book) {
             return res.status(404).json({ message: 'Book not found in your collection' });
         }
 
+        // Update the book status
         book.status = status;
         await user.save();
 
@@ -113,6 +121,8 @@ exports.updateBookStatus = async (req, res) => {
         res.status(500).json({ message: 'Error updating book status' });
     }
 };
+
+
 
 // Remove a book from user's collection
 exports.removeBook = async (req, res) => {

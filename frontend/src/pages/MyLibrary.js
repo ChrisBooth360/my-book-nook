@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { getUserBooks } from '../services/api';
 import { Link } from 'react-router-dom';
 import '../App.css'; // Custom styles
-import placeholderCover from '../assets/book-nook-placeholder.png';
+import BookCard from '../components/BookCard'; // Import the BookCard component
 
 const MyLibrary = () => {
   const [books, setBooks] = useState([]);
   const [username, setUsername] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true)
+  const [userLibraryBooks, setUserLibraryBooks] = useState([]);;
   const [tbrCount, setTbrCount] = useState(0);
   const [currentlyReadingCount, setCurrentlyReadingCount] = useState(0);
+  const [dropdownVisible, setDropdownVisible] = useState({});
+  const [statusMessage, setStatusMessage] = useState({});
 
   useEffect(() => {
     const fetchUserBooks = async () => {
@@ -36,6 +39,17 @@ const MyLibrary = () => {
     fetchUserBooks();
   }, []);
 
+  const toggleDropdown = (bookId) => {
+    setDropdownVisible(prev => {
+      const newDropdownVisible = { ...prev, [bookId]: !prev[bookId] };
+      // Close other dropdowns if any are open
+      Object.keys(newDropdownVisible).forEach(key => {
+        if (key !== bookId) newDropdownVisible[key] = false;
+      });
+      return newDropdownVisible;
+    });
+  };
+
   if (loading) {
     return <div>Loading your library...</div>;
   }
@@ -54,15 +68,6 @@ const MyLibrary = () => {
             <div>{currentlyReadingCount} books read</div>
           </div>
         </div>
-        <div className="featured-book">
-          <img src={placeholderCover} alt="The Lord of the Rings" />
-          <div className="featured-info">
-            <h3>The Lord of the Rings</h3>
-            <p>by J.R.R. Tolkien</p>
-            <button className="btn">DNF</button>
-            <button className="btn">Finished</button>
-          </div>
-        </div>
       </div>
 
       <div className="book-list">
@@ -75,17 +80,22 @@ const MyLibrary = () => {
           </div>
         ) : (
           books.map((userBook) => (
-            <div key={userBook.bookId?._id} className="book-item">
-              <img src={placeholderCover} alt="Book cover" />
-              <div className="book-details">
-                <h3>{userBook.bookId?.title || 'No title available'}</h3>
-                <p>by {userBook.bookId?.author || 'No author available'}</p>
-              </div>
-              <div className="book-actions">
-                <button className="btn">Read</button>
-                <button className="btn">Remove</button>
-              </div>
-            </div>
+            <BookCard
+              key={userBook.bookId.googleBookId}
+              book={{
+                ...userBook.bookId,
+                status: userBook.status,
+                existsInLibrary: true,
+              }}
+              onAddToShelf={() => setStatusMessage({ [userBook.googleBookId]: 'Book added to shelf!' })}
+              userLibraryBooks={userLibraryBooks}
+              setUserLibraryBooks={setUserLibraryBooks}
+              setBooks={setBooks}
+              dropdownVisible={dropdownVisible}
+              toggleDropdown={toggleDropdown}
+              statusMessage={statusMessage}
+              setStatusMessage={setStatusMessage}
+            />
           ))
         )}
       </div>

@@ -75,3 +75,14 @@ export const checkBookStatus = async (token, isbn) => {
       headers: { Authorization: `Bearer ${token}` }
   });
 };
+
+export const updateBookStatus = async (token, googleBookId, status) => {
+  return axios.put(
+    `${API_URL}/user/${googleBookId}/status`,
+    { status },
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+};
+
