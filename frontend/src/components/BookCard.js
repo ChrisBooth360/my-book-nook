@@ -1,7 +1,7 @@
-// components/BookCard.js
-import React, { useRef } from 'react';
+// src/components/BookCard.js
+import React from 'react';
 import placeholderCover from '../assets/book-nook-placeholder.png';
-import { updateBookStatus, addBookToShelf } from '../services/api';
+import BookCardButtons from './BookCardButtons';
 
 const normalizeBookData = (book) => {
   if (!book.volumeInfo) {
@@ -23,7 +23,6 @@ const normalizeBookData = (book) => {
 const BookCard = ({
   book,
   onAddToShelf,
-  userLibraryBooks,
   setUserLibraryBooks,
   setBooks,
   dropdownVisible,
@@ -31,40 +30,7 @@ const BookCard = ({
   statusMessage,
   setStatusMessage,
 }) => {
-  const dropdownRef = useRef(null);
   const normalizedBook = normalizeBookData(book);
-
-  const handleStatusChange = async (book, status) => {
-    const token = localStorage.getItem('token');
-
-    try {
-      if (book.existsInLibrary) {
-        await updateBookStatus(token, book.googleBookId, status);
-      } else {
-        await addBookToShelf(token, book.googleBookId, status);
-      }
-
-      setUserLibraryBooks((prev) => [
-        ...prev.filter((b) => b.googleBookId !== book.googleBookId),
-        { googleBookId: book.googleBookId, status },
-      ]);
-
-      setBooks((prevBooks) =>
-        prevBooks.map((b) =>
-          b.googleBookId === book.googleBookId
-            ? { ...b, status, existsInLibrary: true }
-            : b
-        )
-      );
-
-      setStatusMessage((prev) => ({
-        ...prev,
-        [book.googleBookId]: `Status changed to ${status}`,
-      }));
-    } catch (error) {
-      console.error('Error updating book status:', error.message);
-    }
-  };
 
   return (
     <div className="book-card">
@@ -79,61 +45,15 @@ const BookCard = ({
         <p>by {normalizedBook.volumeInfo.authors?.join(', ')}</p>
       </div>
 
-      <div className="button-group">
-        <button
-          className="btn add-to-shelf-btn"
-          onClick={() => onAddToShelf(normalizedBook)}
-          disabled={normalizedBook.existsInLibrary}
-          style={{
-            backgroundColor: normalizedBook.existsInLibrary ? '#DBC0A4' : '#FA9939',
-            cursor: normalizedBook.existsInLibrary ? 'not-allowed' : 'pointer',
-          }}
-        >
-          {normalizedBook.existsInLibrary ? 'On Shelf' : 'Add to Shelf'}
-        </button>
-
-        <button
-          className="btn dropdown-btn"
-          onClick={() => toggleDropdown(normalizedBook.googleBookId)}
-        >
-          ▼
-        </button>
-
-        {dropdownVisible[normalizedBook.googleBookId] && (
-          <div ref={dropdownRef} className="dropdown">
-            <button
-              onClick={() => handleStatusChange(normalizedBook, 'unread')}
-              disabled={normalizedBook.status === 'unread'}
-              style={{
-                backgroundColor: normalizedBook.status === 'unread' ? '#DBC0A4' : '#FA9939',
-                cursor: normalizedBook.status === 'unread' ? 'not-allowed' : 'pointer',
-              }}
-            >
-              TBR
-            </button>
-            <button
-              onClick={() => handleStatusChange(normalizedBook, 'read')}
-              disabled={normalizedBook.status === 'read'}
-              style={{
-                backgroundColor: normalizedBook.status === 'read' ? '#DBC0A4' : '#FA9939',
-                cursor: normalizedBook.status === 'read' ? 'not-allowed' : 'pointer',
-              }}
-            >
-              Read
-            </button>
-            <button
-              onClick={() => handleStatusChange(normalizedBook, 'currently reading')}
-              disabled={normalizedBook.status === 'currently reading'}
-              style={{
-                backgroundColor: normalizedBook.status === 'currently reading' ? '#DBC0A4' : '#FA9939',
-                cursor: normalizedBook.status === 'currently reading' ? 'not-allowed' : 'pointer',
-              }}
-            >
-              Reading
-            </button>
-          </div>
-        )}
-      </div>
+      <BookCardButtons
+        onAddToShelf={onAddToShelf}
+        normalizedBook={normalizedBook}
+        toggleDropdown={toggleDropdown}
+        dropdownVisible={dropdownVisible}
+        setUserLibraryBooks={setUserLibraryBooks}
+        setBooks={setBooks}
+        setStatusMessage={setStatusMessage}
+      />
 
       {statusMessage[normalizedBook.googleBookId] && (
         <p className="status-message">{statusMessage[normalizedBook.googleBookId]}</p>

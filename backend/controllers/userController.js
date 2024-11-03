@@ -126,26 +126,29 @@ exports.updateBookStatus = async (req, res) => {
 
 // Remove a book from user's collection
 exports.removeBook = async (req, res) => {
-    const { bookId } = req.params;
+    const { googleBookId } = req.params;
 
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.user.id).populate('books.bookId'); // Populate bookId to access googleBookId
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        const bookIndex = user.books.findIndex(book => book.bookId.equals(bookId));
+        // Find the index of the book using googleBookId
+        const bookIndex = user.books.findIndex(book => book.bookId.googleBookId === googleBookId);
 
         if (bookIndex === -1) {
             return res.status(404).json({ message: 'Book not found in your collection' });
         }
 
+        // Remove the book from user's collection
         user.books.splice(bookIndex, 1);
         await user.save();
 
         res.status(200).json({ message: 'Book removed from your collection' });
     } catch (error) {
+        console.error('Error removing book:', error);
         res.status(500).json({ message: 'Error removing book from your collection' });
     }
 };

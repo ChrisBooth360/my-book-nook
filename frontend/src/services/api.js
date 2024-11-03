@@ -86,3 +86,8 @@ export const updateBookStatus = async (token, googleBookId, status) => {
   );
 };
 
+export const removeBookFromShelf = async (token, googleBookId) => {
+  return axios.delete(`${API_URL}/user/${googleBookId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};

@@ -1,6 +1,6 @@
-// Explore.js
-import React, { useEffect, useState, useRef } from 'react';
-import { searchBooks, getUserBooks } from '../services/api';
+// src/pages/Explore.js
+import React, { useEffect, useState } from 'react';
+import { searchBooks, getUserBooks, addBookToShelf } from '../services/api';
 import '../App.css';
 import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
@@ -11,8 +11,6 @@ const Explore = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState({});
-  const [dropdownVisible, setDropdownVisible] = useState({});
-  const dropdownRef = useRef({});
 
   useEffect(() => {
     const fetchUserLibrary = async () => {
@@ -58,35 +56,31 @@ const Explore = () => {
     }
   };
 
-  const toggleDropdown = (bookId) => {
-    setDropdownVisible((prev) => {
-      const newDropdownVisible = { ...prev, [bookId]: !prev[bookId] };
-      Object.keys(newDropdownVisible).forEach((key) => {
-        if (key !== bookId) newDropdownVisible[key] = false;
-      });
-      return newDropdownVisible;
-    });
+  const onAddToShelf = async (book) => {
+    const token = localStorage.getItem('token');
+    try {
+      await addBookToShelf(token, book.googleBookId, 'unread'); // Default to 'unread' when adding
+      setUserLibraryBooks((prev) => [
+        ...prev,
+        { googleBookId: book.googleBookId, status: 'unread' },
+      ]);
+
+      setBooks((prevBooks) =>
+        prevBooks.map((b) =>
+          b.googleBookId === book.googleBookId
+            ? { ...b, existsInLibrary: true, status: 'unread' }
+            : b
+        )
+      );
+
+      setStatusMessage((prev) => ({
+        ...prev,
+        [book.googleBookId]: 'Book added to shelf!',
+      }));
+    } catch (error) {
+      console.error('Error adding book to shelf:', error.message);
+    }
   };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      const dropdownKeys = Object.keys(dropdownVisible);
-      dropdownKeys.forEach((key) => {
-        if (
-          dropdownVisible[key] &&
-          dropdownRef.current[key] &&
-          !dropdownRef.current[key].contains(event.target)
-        ) {
-          setDropdownVisible((prev) => ({ ...prev, [key]: false }));
-        }
-      });
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [dropdownVisible]);
 
   return (
     <div className="explore-page">
@@ -103,12 +97,10 @@ const Explore = () => {
           <BookCard
             key={book.googleBookId}
             book={book}
-            onAddToShelf={() => setStatusMessage({ [book.googleBookId]: 'Book added to shelf!' })}
+            onAddToShelf={() => onAddToShelf(book)}
             userLibraryBooks={userLibraryBooks}
             setUserLibraryBooks={setUserLibraryBooks}
             setBooks={setBooks}
-            dropdownVisible={dropdownVisible}
-            toggleDropdown={toggleDropdown}
             statusMessage={statusMessage}
             setStatusMessage={setStatusMessage}
           />
