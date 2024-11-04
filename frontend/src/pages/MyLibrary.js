@@ -12,7 +12,6 @@ const MyLibrary = () => {
   const [userLibraryBooks, setUserLibraryBooks] = useState([]);
   const [tbrCount, setTbrCount] = useState(0);
   const [currentlyReadingCount, setCurrentlyReadingCount] = useState(0);
-  const [dropdownVisible, setDropdownVisible] = useState({});
   const [statusMessage, setStatusMessage] = useState({});
 
   useEffect(() => {
@@ -48,16 +47,6 @@ const MyLibrary = () => {
 
     fetchUserBooks();
   }, []);
-
-  const toggleDropdown = (bookId) => {
-    setDropdownVisible((prev) => {
-      const newDropdownVisible = { ...prev, [bookId]: !prev[bookId] };
-      Object.keys(newDropdownVisible).forEach((key) => {
-        if (key !== bookId) newDropdownVisible[key] = false;
-      });
-      return newDropdownVisible;
-    });
-  };
 
   if (loading) {
     return <div>Loading your library...</div>;
@@ -98,8 +87,6 @@ const MyLibrary = () => {
               userLibraryBooks={userLibraryBooks}
               setUserLibraryBooks={setUserLibraryBooks}
               setBooks={setBooks}
-              dropdownVisible={dropdownVisible}
-              toggleDropdown={toggleDropdown}
               statusMessage={statusMessage}
               setStatusMessage={setStatusMessage}
             />

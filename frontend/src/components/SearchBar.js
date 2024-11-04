@@ -19,7 +19,7 @@ const SearchBar = ({ onSearch }) => {
         required
         className="search-input"
       />
-      <button type="submit" className="search-button">Search</button>
+      <button type="submit">Search</button>
     </form>
   );
 };
