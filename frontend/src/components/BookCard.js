@@ -2,6 +2,7 @@
 import React from 'react';
 import placeholderCover from '../assets/book-nook-placeholder.png';
 import BookCardButtons from './BookCardButtons';
+import { removeBookFromShelf } from '../services/api';
 
 const normalizeBookData = (book) => {
   if (!book.volumeInfo) {
@@ -22,42 +23,62 @@ const normalizeBookData = (book) => {
 
 const BookCard = ({
   book,
-  onAddToShelf,
   setUserLibraryBooks,
   setBooks,
-  dropdownVisible,
-  toggleDropdown,
   statusMessage,
   setStatusMessage,
 }) => {
   const normalizedBook = normalizeBookData(book);
 
+  const handleRemoveFromLibrary = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      await removeBookFromShelf(token, normalizedBook.googleBookId);
+      setUserLibraryBooks((prev) =>
+        prev.filter((b) => b.googleBookId !== normalizedBook.googleBookId)
+      );
+      setBooks((prevBooks) =>
+        prevBooks.map((b) =>
+          b.googleBookId === normalizedBook.googleBookId
+            ? { ...b, existsInLibrary: false, status: null }
+            : b
+        )
+      );
+      setStatusMessage((prev) => ({
+        ...prev,
+        [normalizedBook.googleBookId]: 'Book removed from library',
+      }));
+    } catch (error) {
+      console.error('Error removing book from library:', error.message);
+    }
+  };
+
   return (
     <div className="book-card">
       <img src={normalizedBook.thumbnail || placeholderCover} alt="Book cover" />
       <div className="book-details">
-        <span className="book-status">
-          {normalizedBook.status === 'unread' && 'This book is currently on your TBR'}
-          {normalizedBook.status === 'read' && 'You have read this book'}
-          {normalizedBook.status === 'currently reading' && 'You are reading this book'}
-        </span>
         <h3>{normalizedBook.volumeInfo.title}</h3>
         <p>by {normalizedBook.volumeInfo.authors?.join(', ')}</p>
       </div>
 
-      <BookCardButtons
-        onAddToShelf={onAddToShelf}
-        normalizedBook={normalizedBook}
-        toggleDropdown={toggleDropdown}
-        dropdownVisible={dropdownVisible}
-        setUserLibraryBooks={setUserLibraryBooks}
-        setBooks={setBooks}
-        setStatusMessage={setStatusMessage}
-      />
-
       {statusMessage[normalizedBook.googleBookId] && (
         <p className="status-message">{statusMessage[normalizedBook.googleBookId]}</p>
       )}
+      <div className='book-card-buttons'>
+        <BookCardButtons
+          normalizedBook={normalizedBook}
+          setUserLibraryBooks={setUserLibraryBooks}
+          setBooks={setBooks}
+          setStatusMessage={setStatusMessage}
+        />
+        
+        {normalizedBook.existsInLibrary && (
+          <button className="btn remove-from-library-btn" onClick={handleRemoveFromLibrary}>
+            Remove
+          </button>
+        )}
+      </div>
+      
     </div>
   );
 };
