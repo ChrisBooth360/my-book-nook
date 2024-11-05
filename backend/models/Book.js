@@ -10,8 +10,8 @@ const bookSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    author: {
-        type: String,
+    authors: {
+        type: [String], // Array to accommodate multiple authors
         required: true
     },
     isbn: {
@@ -23,16 +23,40 @@ const bookSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
-    genre: {
-        type:[String],
-        default:[]
+    categories: {
+        type: [String], // Array for multiple categories/genres
+        default: []
     },
-    numberOfPages: {
+    pageCount: {
         type: Number,
         default: 0
     },
-    publicationDate: {
-        type: Date
+    publishedDate: {
+        type: String // Keeping it as a string for better handling of various date formats
+    },
+    publisher: {
+        type: String,
+        default: ''
+    },
+    thumbnail: {
+        type: String, // URL of the thumbnail image
+        default: ''
+    },
+    language: {
+        type: String,
+        default: 'en' // Default to English
+    },
+    previewLink: {
+        type: String, // URL for previewing the book
+        default: ''
+    },
+    infoLink: {
+        type: String, // URL for detailed book information
+        default: ''
+    },
+    buyLink: {
+        type: String, // URL for buying the book
+        default: ''
     }
 });
 

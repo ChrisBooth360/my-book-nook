@@ -52,7 +52,21 @@ const addBookToUserCollection = async (req, res) => {
         });
 
         // Destructure relevant fields from the fetched data
-        const { title, authors, industryIdentifiers, description, categories, pageCount, publishedDate } = bookData.volumeInfo;
+        const { 
+            title, 
+            authors, 
+            industryIdentifiers, 
+            description, 
+            categories, 
+            pageCount, 
+            publishedDate,
+            publisher,
+            imageLinks,
+            language,
+            previewLink,
+            infoLink
+        } = bookData.volumeInfo;
+
         const isbn = industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier || industryIdentifiers?.[0]?.identifier;
 
         if (!isbn) {
@@ -66,12 +80,17 @@ const addBookToUserCollection = async (req, res) => {
             existingBook = new Book({
                 googleBookId,
                 title,
-                author: authors?.join(', ') || 'Unknown Author',
+                authors: authors || ['Unknown Author'],
                 isbn,
                 description,
-                genre: categories || [],
-                numberOfPages: pageCount || 0,
-                publicationDate: publishedDate
+                categories: categories || [],
+                pageCount: pageCount || 0,
+                publishedDate,
+                publisher,
+                thumbnail: imageLinks?.thumbnail || '',
+                language: language || 'en',
+                previewLink: previewLink || '',
+                infoLink: infoLink || ''
             });
             await existingBook.save();
         }
@@ -112,7 +131,6 @@ const checkBookStatus = async (req, res) => {
         res.status(500).json({ message: 'Error checking book status' });
     }
 };
-
 
 const deleteBookFromLibrary = async (req, res) => {
     const { bookId } = req.params;
