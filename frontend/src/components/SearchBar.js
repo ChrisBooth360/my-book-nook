@@ -17,7 +17,7 @@ const SearchBar = ({ onSearch }) => {
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search for books by title, author, or ISBN"
         required
-        className="search-input"
+        className="search-bar"
       />
       <button type="submit">Search</button>
     </form>

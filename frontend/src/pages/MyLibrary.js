@@ -4,6 +4,7 @@ import { getUserBooks } from '../services/api';
 import { Link } from 'react-router-dom';
 import '../App.css';
 import BookCard from '../components/BookCard';
+import Dashboard from '../components/Dashboard';
 
 const MyLibrary = () => {
   const [books, setBooks] = useState([]);
@@ -54,20 +55,14 @@ const MyLibrary = () => {
 
   return (
     <div className="my-library-page">
-      <div className="dashboard">
-        <div className="dashboard-header">
-          <h2>{username}'s Library</h2>
-          <div className="dashboard-stats">
-            <span className="total-books">{books.length}</span>
-            <span className="books-label">books on your shelf</span>
-          </div>
-          <div className="dashboard-info">
-            <div>{tbrCount} on your TBR</div>
-            <div>{currentlyReadingCount} books read</div>
-          </div>
-        </div>
+      <div className="dashboard-container">
+        <Dashboard 
+          username={username}
+          totalBooks={books.length}
+          tbrCount={tbrCount}
+          currentlyReadingCount={currentlyReadingCount}
+        />
       </div>
-
       <div className="book-list">
         {books.length === 0 ? (
           <div className="empty-shelf">
