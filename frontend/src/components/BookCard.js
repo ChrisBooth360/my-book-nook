@@ -5,19 +5,38 @@ import BookCardButtons from './BookCardButtons';
 import { removeBookFromShelf } from '../services/api';
 
 const normalizeBookData = (book) => {
+  const defaultImageLinks = { thumbnail: '' };
+  console.log(book)
   if (!book.volumeInfo) {
     return {
-      thumbnail: book.thumbnail || placeholderCover,
       volumeInfo: {
         title: book.title || 'No title available',
-        authors: book.author ? [book.author] : [],
+        authors: book.authors ? [book.authors] : [],
+        publisher: book.publisher || 'Unknown Publisher',
+        publishedDate: book.publishedDate || 'Unknown Date',
+        description: book.description || 'No description available',
+        pageCount: book.pageCount || 0,
+        categories: book.categories ? [book.categories] : [],
+        imageLinks: book.thumbnail ? { thumbnail: book.thumbnail } : defaultImageLinks,
+        language: book.language || 'Unknown Language',
+        previewLink: book.previewLink || '#',
+        infoLink: book.infoLink || '#',
       },
-      status: book.status,
+      saleInfo: {
+        buyLink: book.buyLink || '#',
+      },
+      status: book.status || 'unread',
       existsInLibrary: true,
       googleBookId: book.googleBookId,
     };
   } else {
-    return book;
+    return {
+      ...book,
+      volumeInfo: {
+        ...book.volumeInfo,
+        imageLinks: book.volumeInfo.imageLinks || defaultImageLinks,
+      },
+    };
   }
 };
 
@@ -55,7 +74,10 @@ const BookCard = ({
 
   return (
     <div className="book-card">
-      <img src={normalizedBook.thumbnail || placeholderCover} alt="Book cover" />
+      <img 
+        src={normalizedBook.volumeInfo.imageLinks.thumbnail || placeholderCover} 
+        alt="Book cover" 
+      />
       <div className="book-details">
         <h3>{normalizedBook.volumeInfo.title}</h3>
         <p>by {normalizedBook.volumeInfo.authors?.join(', ')}</p>
@@ -64,21 +86,20 @@ const BookCard = ({
       {statusMessage[normalizedBook.googleBookId] && (
         <p className="status-message">{statusMessage[normalizedBook.googleBookId]}</p>
       )}
-      <div className='book-card-buttons'>
+      <div className="book-card-buttons">
         <BookCardButtons
           normalizedBook={normalizedBook}
           setUserLibraryBooks={setUserLibraryBooks}
           setBooks={setBooks}
           setStatusMessage={setStatusMessage}
         />
-        
+
         {normalizedBook.existsInLibrary && (
           <button className="btn remove-from-library-btn" onClick={handleRemoveFromLibrary}>
             Remove
           </button>
         )}
       </div>
-      
     </div>
   );
 };
