@@ -9,6 +9,7 @@
   --error-color: #D56F00; /* Error color */
   --header-bg-color: #045174; /* Header background color */
   --card-bg-color: #F8DCBF; /* Card background color */
+  --header-text-color-light: #F8DCBF;
 }
 
 body {
@@ -351,8 +352,8 @@ button:hover {
   align-items: flex-start; /* Align items to the left */
   background-color: #001f3d;
   color: #fff9f3;
-  padding: 40px;
-  margin-bottom: 20px;
+  padding: 20px 60px 40px 40px;
+  margin-right: 20px;
   width: 100%;
   max-width: 200px; /* Adjusted max-width as needed */
   position: sticky; /* Make the dashboard sticky */
@@ -365,11 +366,11 @@ button:hover {
   justify-content: center; /* Center horizontally */
   align-items: center; /* Center vertically (if needed) */
   width: 100%; /* Ensures it takes up the full width of the parent */
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .profile-picture img {
-  width: 75%;
+  width: 50%;
   border-radius: 50%;
   margin-bottom: 15px;
   border: 3px solid #F8DCBF;
@@ -389,6 +390,63 @@ button:hover {
   text-align: left; /* Left align stats and info */
 }
 
+.currently-reading-section-small {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.currently-reading-section-small h3 {
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  text-align: left;
+  color: var(--header-text-color-light);
+}
+
+.currently-reading-books-small {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.currently-reading-card-small {
+  display: flex;
+  align-items: center;
+  background-color: var(--primary-button-hover-bg);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.currently-reading-card-small:hover {
+  transform: scale(1.02);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.book-thumbnail-small {
+  width: 60px;
+  height: 90px;
+  margin-right: 15px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.book-info-small {
+  display: flex;
+  flex-direction: column;
+}
+
+.book-title-small {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+  color: var(--header-text-color-light);
+}
+
+.book-author-small {
+  font-size: 0.9rem;
+  color: var(--header-text-color-light);
+}
 
 /* ================= Book List Styling ================= */
 .book-list {
@@ -439,3 +497,10 @@ button:hover {
   align-items: flex-end; /* Align children to the right */
 }
 
+.book-card.currently-reading {
+  background-color: #D56F00;
+  color: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}

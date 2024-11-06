@@ -1,28 +1,30 @@
-// src/App.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ProfilePage from './pages/ProfilePage';
-import RegisterPage from './pages/RegisterPage';
-import LoginPage from './pages/LoginPage';
 import MyLibrary from './pages/MyLibrary';
-import Explore from './pages/Explore'; 
-import Header from './components/Header'; // Keep the Header for authenticated pages
+import Explore from './pages/Explore';
+import Header from './components/Header';
 import './App.css';
 
 function App() {
-  const isLoggedIn = !!localStorage.getItem('token'); // Replace this logic with your own authentication check
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token')); // State for login check
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setIsLoggedIn(true); // Set login state if token is found
+    }
+  }, []); // Only run once when the component is mounted
 
   return (
     <div>
-      {isLoggedIn && <Header />}
+      {isLoggedIn && <Header />} {/* Show Header only if logged in */}
       <Routes>
-        <Route path="/" element={isLoggedIn ? <ProfilePage /> : <HomePage />} />
-        <Route path="/explore" element={<Explore />} /> {/* Add this line */}
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/my-library" element={<MyLibrary />} />
+        <Route path="/" element={isLoggedIn ? <MyLibrary /> : <HomePage setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/explore" element={isLoggedIn ? <Explore /> : <HomePage setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/profile" element={isLoggedIn ? <ProfilePage /> : <HomePage setIsLoggedIn={setIsLoggedIn} />} />
+        <Route path="/my-library" element={isLoggedIn ? <MyLibrary /> : <HomePage setIsLoggedIn={setIsLoggedIn} />} />
       </Routes>
     </div>
   );

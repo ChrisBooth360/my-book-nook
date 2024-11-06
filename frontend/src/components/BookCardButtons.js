@@ -79,31 +79,51 @@ const BookCardButtons = ({
     }
   };
 
-  const handleAddToShelf = async () => {
+  const handleAddToShelf = async (status) => {
     const token = localStorage.getItem('token');
     try {
-      await addBookToShelf(token, normalizedBook.googleBookId, 'unread');
+      await addBookToShelf(token, normalizedBook.googleBookId, status);
+      
+      // Update user's library books
       setUserLibraryBooks((prev) => [
         ...prev,
-        { googleBookId: normalizedBook.googleBookId, status: 'unread' },
+        { googleBookId: normalizedBook.googleBookId, status },
       ]);
-
+  
+      // Update the books in the UI
       setBooks((prevBooks) =>
         prevBooks.map((b) =>
           b.googleBookId === normalizedBook.googleBookId
-            ? { ...b, existsInLibrary: true, status: 'unread' }
+            ? { ...b, existsInLibrary: true, status }
             : b
         )
       );
 
-      setStatusMessage((prev) => ({
-        ...prev,
-        [normalizedBook.googleBookId]: 'Book added to TBR shelf!',
-      }));
+      let statusMessage;
+    switch (status) {
+      case 'unread':
+        statusMessage = 'Added to TBR Shelf';
+        break;
+      case 'read':
+        statusMessage = "Added to Read Shelf";
+        break;
+      case 'currently reading':
+        statusMessage = 'Added to Currently Reading';
+        break;
+      default:
+        statusMessage = `Added to ${status}`;
+        break;
+    }
+
+    setStatusMessage((prev) => ({
+      ...prev,
+      [normalizedBook.googleBookId]: statusMessage,
+    }));
     } catch (error) {
       console.error('Error adding book to shelf:', error.message);
     }
   };
+  
 
   const getButtonLabel = () => {
     if (!normalizedBook.existsInLibrary) return 'Add to Shelf';
@@ -123,7 +143,7 @@ const BookCardButtons = ({
     <div className="button-group">
       <button
         className={`btn add-to-shelf-btn ${normalizedBook.existsInLibrary ? 'disabled-btn' : ''}`}
-        onClick={!normalizedBook.existsInLibrary ? handleAddToShelf : undefined}
+        onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('unread') : undefined}
       >
         {getButtonLabel()}
       </button>
@@ -143,21 +163,21 @@ const BookCardButtons = ({
         <div className="dropdown" ref={dropdownRef}>
           <button
             className={`${normalizedBook.status === 'unread' ? 'disabled-btn' : 'dropdown-menu-button'}`}
-            onClick={() => handleStatusChange('unread')}
+            onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('unread') : () => handleStatusChange('unread')}
             disabled={normalizedBook.status === 'unread'}
           >
             TBR
           </button>
           <button
             className={`${normalizedBook.status === 'read' ? 'disabled-btn' : 'dropdown-menu-button'}`}
-            onClick={() => handleStatusChange('read')}
+            onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('read') : () => handleStatusChange('read')}
             disabled={normalizedBook.status === 'read'}
           >
             Read
           </button>
           <button
             className={`${normalizedBook.status === 'currently reading' ? 'disabled-btn' : 'dropdown-menu-button'}`}
-            onClick={() => handleStatusChange('currently reading')}
+            onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('currently reading') : () => handleStatusChange('currently reading')}
             disabled={normalizedBook.status === 'currently reading'}
           >
             Reading

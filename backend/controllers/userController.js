@@ -1,4 +1,4 @@
-// userController.js
+// controllers/userController.js
 const User = require('../models/User');
 const Book = require('../models/Book');
 const bcrypt = require('bcryptjs');
@@ -242,3 +242,35 @@ exports.changePassword = async (req, res) => {
         res.status(500).json({ message: 'Error updating password' });
     }
 };
+
+// Get books with status 'currently reading'
+exports.getCurrentlyReading = async (req, res) => {
+    try {
+        // Find the user by ID
+        const user = await User.findById(req.user.id).populate('books.bookId');
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if the user has any books with 'currently reading' status
+        const currentlyReadingBooks = user.books.filter(book => book.status === 'currently reading');
+
+        if (currentlyReadingBooks.length === 0) {
+            return res.status(404).json({ message: 'No currently reading books found in your collection' });
+        }
+
+        // Format response with book details
+        const booksWithDetails = currentlyReadingBooks.map(book => ({
+            addedDate: book.addedDate ? book.addedDate.toISOString() : null,
+            status: book.status,
+            bookId: book.bookId, // populated book details
+        }));
+
+        res.json(booksWithDetails);
+    } catch (error) {
+        console.log('Error fetching currently reading books:', error);
+        res.status(500).json({ message: 'Error fetching currently reading books' });
+    }
+};
+

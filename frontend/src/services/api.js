@@ -91,3 +91,11 @@ export const removeBookFromShelf = async (token, googleBookId) => {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
+
+export const getCurrentlyReadingBooks = async (token) => {
+  return axios.get(`${API_URL}/user/currently-reading`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

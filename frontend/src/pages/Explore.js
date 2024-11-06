@@ -1,5 +1,5 @@
-// src/pages/Explore.js
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import { searchBooks, getUserBooks, addBookToShelf } from '../services/api';
 import '../App.css';
 import SearchBar from '../components/SearchBar';
@@ -11,6 +11,10 @@ const Explore = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState({});
+  
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const query = searchParams.get('search') || '';
 
   useEffect(() => {
     const fetchUserLibrary = async () => {
@@ -29,37 +33,46 @@ const Explore = () => {
     fetchUserLibrary();
   }, []);
 
-  const handleSearch = async (query) => {
-    setLoading(true);
-    setError('');
-    setBooks([]);
-    setStatusMessage({});
-    const token = localStorage.getItem('token');
+  const handleSearch = useCallback(
+    async (query) => {
+      setLoading(true);
+      setError('');
+      setBooks([]);
+      setStatusMessage({});
+      const token = localStorage.getItem('token');
 
-    try {
-      const response = await searchBooks(token, query);
-      const booksWithStatus = response.map((book) => {
-        const googleBookId = book.id;
-        const userBook = userLibraryBooks.find((b) => b.googleBookId === googleBookId);
-        return {
-          ...book,
-          googleBookId,
-          existsInLibrary: !!userBook,
-          status: userBook?.status || null,
-        };
-      });
-      setBooks(booksWithStatus);
-    } catch (err) {
-      setError('Error fetching books. Please try again.');
-    } finally {
-      setLoading(false);
+      try {
+        const response = await searchBooks(token, query);
+        const booksWithStatus = response.map((book) => {
+          const googleBookId = book.id;
+          const userBook = userLibraryBooks.find((b) => b.googleBookId === googleBookId);
+          return {
+            ...book,
+            googleBookId,
+            existsInLibrary: !!userBook,
+            status: userBook?.status || null,
+          };
+        });
+        setBooks(booksWithStatus);
+      } catch (err) {
+        setError('Error fetching books. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    },
+    [userLibraryBooks]
+  );
+
+  useEffect(() => {
+    if (query) {
+      handleSearch(query);
     }
-  };
+  }, [query, handleSearch]);
 
   const onAddToShelf = async (book) => {
     const token = localStorage.getItem('token');
     try {
-      await addBookToShelf(token, book.googleBookId, 'unread'); // Default to 'unread' when adding
+      await addBookToShelf(token, book.googleBookId, 'unread');
       setUserLibraryBooks((prev) => [
         ...prev,
         { googleBookId: book.googleBookId, status: 'unread' },

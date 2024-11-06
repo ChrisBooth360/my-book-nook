@@ -1,4 +1,3 @@
-// src/pages/MyLibrary.js
 import React, { useEffect, useState } from 'react';
 import { getUserBooks } from '../services/api';
 import { Link } from 'react-router-dom';
@@ -21,16 +20,35 @@ const MyLibrary = () => {
       try {
         const response = await getUserBooks(token);
         if (response && response.data.books) {
+          // Map the books to include only necessary information
           const libraryBooks = response.data.books.map((book) => ({
             ...book.bookId,
             status: book.status,
             existsInLibrary: true,
           }));
 
-          setBooks(libraryBooks);
-          setUserLibraryBooks(libraryBooks);
+          // Sort the books by status and author
+          const sortedBooks = libraryBooks.sort((a, b) => {
+            // Custom sort for status
+            const statusOrder = {
+              'currently reading': 1,
+              'unread': 2,
+              'read': 3,
+            };
+            const statusComparison = statusOrder[a.status] - statusOrder[b.status];
+            
+            // If statuses are the same, sort by author
+            if (statusComparison === 0) {
+              return (a.author || '').localeCompare(b.author || '');
+            }
+            return statusComparison;
+          });
+
+          setBooks(sortedBooks);
+          setUserLibraryBooks(sortedBooks);
           setUsername(response.data.username);
 
+          // Calculate counts
           const tbr = libraryBooks.filter((book) => book.status === 'unread').length;
           const currentlyReading = libraryBooks.filter(
             (book) => book.status === 'currently reading'
@@ -76,6 +94,7 @@ const MyLibrary = () => {
             <BookCard
               key={book.googleBookId}
               book={book}
+              status={book.status}
               onAddToShelf={() =>
                 setStatusMessage({ [book.googleBookId]: 'Book already in your library!' })
               }
