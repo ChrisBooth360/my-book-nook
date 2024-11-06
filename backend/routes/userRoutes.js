@@ -1,3 +1,4 @@
+// routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
@@ -13,5 +14,6 @@ router.get('/search', authMiddleware, userController.searchUserBooks);
 router.get('/profile', authMiddleware, userController.getUserProfile);
 router.put('/profile', authMiddleware, userController.updateUserProfile);
 router.put('/profile/password', authMiddleware, userController.changePassword);
+router.get('/currently-reading', authMiddleware, userController.getCurrentlyReading);
 
 module.exports = router;

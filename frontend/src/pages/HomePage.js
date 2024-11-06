@@ -1,11 +1,10 @@
-// src/pages/HomePage.js
 import React, { useState } from 'react';
 import { loginUser, registerUser } from '../services/api'; // Import the register function
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 import '../App.css'; // Custom styles
 import headerLogo from '../assets/book-nook-sq-logo-slogan.png';
 
-const HomePage = () => {
+const HomePage = ({ setIsLoggedIn }) => {
   const [formType, setFormType] = useState(null); // State to track form (login/register)
   const [formData, setFormData] = useState({ email: '', password: '', username: '' }); // Track form inputs
   const [error, setError] = useState(null); // State for error messages
@@ -23,6 +22,7 @@ const HomePage = () => {
       const response = await loginUser(formData); // Call the login function
       console.log('Login successful:', response.data); // Log response
       localStorage.setItem('token', response.data.token); // Store token in local storage
+      setIsLoggedIn(true); // Update login state
       setError(null);
       setSuccessMessage(null); // Clear success message
       navigate('/my-library'); // Redirect to the library page

@@ -6,7 +6,6 @@ import { removeBookFromShelf } from '../services/api';
 
 const normalizeBookData = (book) => {
   const defaultImageLinks = { thumbnail: '' };
-  console.log(book)
   if (!book.volumeInfo) {
     return {
       volumeInfo: {
@@ -73,7 +72,7 @@ const BookCard = ({
   };
 
   return (
-    <div className="book-card">
+    <div className={`book-card ${normalizedBook.status === 'currently reading' ? 'currently-reading' : ''}`}>
       <img 
         src={normalizedBook.volumeInfo.imageLinks.thumbnail || placeholderCover} 
         alt="Book cover" 

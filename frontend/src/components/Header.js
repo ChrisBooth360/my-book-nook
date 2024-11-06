@@ -1,21 +1,23 @@
 import React from 'react';
-import '../App.css'; // Custom CSS for header
+import '../App.css';
 import headerLogo from '../assets/book-nook-small-header.png';
-import { useNavigate } from 'react-router-dom'; // Hook for programmatic navigation
-import { Link } from 'react-router-dom'; // Use Link for client-side routing
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import SearchBar from '../components/SearchBar';
 
 function Header() {
-  const navigate = useNavigate(); // Use navigate for redirection
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    // Clear the token from localStorage or cookies
     localStorage.removeItem('token');
-    
-    // Redirect to login page
-    navigate('/');
+    navigate('/'); // Redirect to homepage after logging out
   };
 
-  const isLoggedIn = !!localStorage.getItem('token'); // Check if token exists
+  const isLoggedIn = !!localStorage.getItem('token'); // Check if user is logged in
+
+  const handleSearch = (query) => {
+    navigate(`/explore?search=${encodeURIComponent(query)}`);
+  };
 
   return (
     <header className="header">
@@ -25,17 +27,19 @@ function Header() {
         </Link>
       </div>
       <div className="header-middle">
-        <input type="text" placeholder="Search books..." className="search-bar" />
+        <div className="search-container">
+          <SearchBar onSearch={handleSearch} />
+        </div>
       </div>
       <nav className="header-right nav-menu">
-      <ul>
-          <li><a href="/my-library">My Library</a></li>
-          <li><a href="/explore">Explore</a></li>
-          {isLoggedIn && <li><a href="/profile">Profile</a></li>}
+        <ul>
+          <li><Link to="/my-library">My Library</Link></li>
+          <li><Link to="/explore">Explore</Link></li>
+          {isLoggedIn && <li><Link to="/profile">Profile</Link></li>}
           {isLoggedIn ? (
             <li><a href="/" onClick={handleLogout}>Logout</a></li>
           ) : (
-            <li><a href="/">Login</a></li>
+            <li><Link to="/">Login</Link></li>
           )}
         </ul>
       </nav>
