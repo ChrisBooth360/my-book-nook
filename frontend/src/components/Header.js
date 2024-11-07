@@ -1,3 +1,4 @@
+// src/components/Header.js
 import React from 'react';
 import '../App.css';
 import headerLogo from '../assets/book-nook-small-header.png';
