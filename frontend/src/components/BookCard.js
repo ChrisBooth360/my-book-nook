@@ -52,16 +52,12 @@ const BookCard = ({
     const token = localStorage.getItem('token');
     try {
       await removeBookFromShelf(token, normalizedBook.googleBookId);
-      setUserLibraryBooks((prev) =>
-        prev.filter((b) => b.googleBookId !== normalizedBook.googleBookId)
-      );
+  
+      // Update the books state directly using setBooks
       setBooks((prevBooks) =>
-        prevBooks.map((b) =>
-          b.googleBookId === normalizedBook.googleBookId
-            ? { ...b, existsInLibrary: false, status: null }
-            : b
-        )
+        prevBooks.filter((b) => b.googleBookId !== normalizedBook.googleBookId)
       );
+  
       setStatusMessage((prev) => ({
         ...prev,
         [normalizedBook.googleBookId]: 'Book removed from library',
@@ -70,6 +66,7 @@ const BookCard = ({
       console.error('Error removing book from library:', error.message);
     }
   };
+  
 
   return (
     <div className={`book-card ${normalizedBook.status === 'currently reading' ? 'currently-reading' : ''}`}>

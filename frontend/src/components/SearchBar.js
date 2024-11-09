@@ -1,13 +1,14 @@
-// src/components/SearchBar.js
 import React, { useState } from 'react';
-import '../App.css'; // Make sure to import the CSS file
+import '../App.css';
 
-const SearchBar = ({ onSearch, placeholder = "Search for books by title, author, or ISBN"  }) => {
+const SearchBar = ({ onSearch, placeholder = "Search for books by title, author, or ISBN" }) => {
   const [query, setQuery] = useState('');
 
   const handleSearch = (e) => {
     e.preventDefault();
-    onSearch(query);
+    if (query.trim()) {
+      onSearch(query);
+    }
   };
 
   return (
@@ -17,7 +18,6 @@ const SearchBar = ({ onSearch, placeholder = "Search for books by title, author,
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder={placeholder}
-        required
         className="search-bar"
       />
       <button type="submit">Search</button>
