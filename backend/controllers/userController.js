@@ -70,15 +70,13 @@ exports.getUserBooks = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        if (!user.books.length) {
-            return res.status(404).json({ message: 'No books found in your collection' });
-        }
-
-        const userBooksWithDetails = user.books.map(userBook => ({
-            addedDate: userBook.addedDate.toISOString(),
-            status: userBook.status,
-            bookId: userBook.bookId,
-        }));
+        const userBooksWithDetails = user.books.length > 0
+            ? user.books.map(userBook => ({
+                addedDate: userBook.addedDate.toISOString(),
+                status: userBook.status,
+                bookId: userBook.bookId,
+              }))
+            : [];  // Return an empty array if no books are found
 
         res.json({
             username: user.username,
@@ -88,6 +86,7 @@ exports.getUserBooks = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 // Update user book status
 exports.updateBookStatus = async (req, res) => {
@@ -256,18 +255,18 @@ exports.getCurrentlyReading = async (req, res) => {
         // Check if the user has any books with 'currently reading' status
         const currentlyReadingBooks = user.books.filter(book => book.status === 'currently reading');
 
-        if (currentlyReadingBooks.length === 0) {
-            return res.status(404).json({ message: 'No currently reading books found in your collection' });
-        }
+        const booksWithDetails = currentlyReadingBooks.length > 0
+            ? user.books.map(userBook => ({
+                addedDate: userBook.addedDate.toISOString(),
+                status: userBook.status,
+                bookId: userBook.bookId,
+              }))
+            : [];  // Return an empty array if no books are found
 
-        // Format response with book details
-        const booksWithDetails = currentlyReadingBooks.map(book => ({
-            addedDate: book.addedDate ? book.addedDate.toISOString() : null,
-            status: book.status,
-            bookId: book.bookId, // populated book details
-        }));
-
-        res.json(booksWithDetails);
+        res.json({
+            username: user.username,
+            books: booksWithDetails
+        });
     } catch (error) {
         console.log('Error fetching currently reading books:', error);
         res.status(500).json({ message: 'Error fetching currently reading books' });
