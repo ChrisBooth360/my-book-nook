@@ -58,7 +58,7 @@ const Dashboard = ({ username, totalBooks, tbrCount, currentlyReadingCount }) =>
               ))}
             </div>
           ) : (
-            <p>No books currently being read</p>
+            <p className='no-currently-reading'>No books currently being read</p>
           )}
         </div>
       </div>

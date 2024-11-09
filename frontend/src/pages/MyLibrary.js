@@ -133,7 +133,7 @@ const MyLibrary = () => {
           <div className="book-list">
             {filteredBooks.length === 0 ? (
               <div className="empty-shelf">
-                <p>No books found matching your search. Try a different query!</p>
+                <p>Your shelf is bare! Find some books to add.</p>
                 <Link to="/explore">
                   <button className="btn explore-btn">Explore</button>
                 </Link>

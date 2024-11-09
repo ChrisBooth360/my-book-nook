@@ -509,7 +509,6 @@ button:hover {
   display: flex;
   justify-content: center; /* Center content within the search bar */
   align-items: center;
-  background-color: #f7f7f7;
   padding: 10px;
   border-radius: 8px;
   margin-top: 20px;
@@ -559,4 +558,8 @@ button:hover {
   display: flex;
   justify-content: flex-start; /* Align items to the start */
   width: 100%;
+}
+
+.no-currently-reading {
+  color: #f7f7f7;
 }
