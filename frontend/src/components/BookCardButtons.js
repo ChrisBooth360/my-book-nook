@@ -148,7 +148,7 @@ const BookCardButtons = ({
       </button>
 
       <button
-        className="btn dropdown-btn"
+        className={`btn dropdown-btn ${normalizedBook.status === 'currently reading' ? 'currently-reading' : ''}`}
         onClick={toggleDropdown}
         ref={dropdownButtonRef}
       >
@@ -158,19 +158,19 @@ const BookCardButtons = ({
       {dropdownVisible && (
         <div className="dropdown" ref={dropdownRef}>
           <button
-            className={`${normalizedBook.status === 'unread' ? 'disabled-btn' : 'dropdown-menu-button'}`}
+            className={`${normalizedBook.status === 'unread' ? 'dropdown-disabled-btn' : 'dropdown-menu-button'}`}
             onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('unread') : () => handleStatusChange('unread')}
           >
             TBR Shelf
           </button>
           <button
-            className={`${normalizedBook.status === 'currently reading' ? 'disabled-btn' : 'dropdown-menu-button'}`}
+            className={`${normalizedBook.status === 'currently reading' ? 'dropdown-disabled-btn' : 'dropdown-menu-button'}`}
             onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('currently reading') : () => handleStatusChange('currently reading')}
           >
             Currently Reading
           </button>
           <button
-            className={`${normalizedBook.status === 'read' ? 'disabled-btn' : 'dropdown-menu-button'}`}
+            className={`${normalizedBook.status === 'read' ? 'dropdown-disabled-btn' : 'dropdown-menu-button'}`}
             onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('read') : () => handleStatusChange('read')}
           >
             Read

@@ -81,6 +81,11 @@ button:hover {
   justify-content: center;
 }
 
+.header-right {
+  display: flex;
+  justify-content: right;
+}
+
 .header-logo {
   height: 75px;
 }
@@ -156,7 +161,7 @@ button:hover {
   background-color: #FA9939;
   color: white;
   border: none;
-  padding: 10px 5px;
+  padding: 8px 12px;
   font-size: 16px;
   cursor: pointer;
   border-radius: 8px 0 0 8px;
@@ -179,7 +184,7 @@ button:hover {
 .dropdown-btn {
   background-color: #FA9939;
   color: white;
-  padding: 10px 12px;
+  padding: 8px 12px;
   border: none;
   cursor: pointer;
   border-radius: 0 8px 8px 0;
@@ -202,7 +207,6 @@ button:hover {
   flex-direction: column;
   background-color: #FA9939;
   border-radius: 0 0 8px 8px;
-  padding: 5px 0;
   width: 100%;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1;
@@ -212,8 +216,7 @@ button:hover {
   background-color: #FA9939;
   color: white;
   border: none;
-  padding: 10px;
-  font-size: 16px;
+  font-size: 14px;
   cursor: pointer;
   text-align: center;
   width: 100%;
@@ -221,6 +224,16 @@ button:hover {
 
 .dropdown-menu-button:hover {
   background-color: #D56F00;
+}
+
+.dropdown-disabled-btn {
+  background-color: #DBC0A4;
+  cursor: default;
+  font-size: 14px;
+}
+
+.dropdown-disabled-btn:hover {
+  background-color: #DBC0A4; /* Maintain the disabled color on hover */
 }
 
 /* ================= Remove From Library Button Styling ================= */
@@ -524,9 +537,8 @@ button:hover {
   box-shadow: 0px 4px 8px #dbc0a4;
   margin: 10px 0;
   position: relative;
-  overflow: hidden; /* Hide overflow when expanding */
-  transition: max-height 0.3s ease-out, padding-bottom 0.3s ease-out; /* Smooth transition for expanding */
-  max-height: 250px; /* Set an initial height */
+  transition: max-height 0.3s ease-out, padding-bottom 0.3s ease-out;
+  max-height: 350px; /* Set a max-height to control initial card size */
 }
 
 .book-card img {
@@ -537,7 +549,6 @@ button:hover {
   cursor: pointer;
   object-fit: cover; 
 }
-
 
 .book-details {
   display: flex;
@@ -558,24 +569,46 @@ button:hover {
   color: #7f7f7f;  /* Make the author text slightly gray for better contrast */
 }
 
+/* ================= Button Section Styling ================= */
+.button-section {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-start;
+}
+
+/* ================= Status Message Styling ================= */
+.book-card .status-message {
+  text-align: left; /* Aligns the status message to the left with the buttons */
+  margin-bottom: 10px;
+  color: #D56F00;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+/* ================= Book Card Buttons Styling ================= */
 .book-card-buttons {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  margin-top: 10px; /* Space between book details and buttons */
 }
 
 .book-card-buttons button {
   margin-top: 5px; /* Space between buttons */
 }
 
+/* Adjusted spacing to prevent overlap */
 .book-card.currently-reading {
-  background-color: #FA9939;
+  background-color: #D56F00;
   color: #fff;
   border-radius: 8px;
   padding: 15px;
   box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.book-card.currently-reading p {
+  color: #e7e7e7;
 }
 
 .expanded-book-info {
@@ -586,30 +619,18 @@ button:hover {
 }
 
 .expanded-book-info p {
-  margin: 5px 0;
+  margin: 20px 0;
   padding-left: 15px;
   padding-right: 15px;
+  color: #191919;
+}
+
+.small-expanded-book-info p {
+  font-size: 0.9rem;
+  margin: 0px;
 }
 
 .book-card.expanded {
-  max-height: 500px; /* Expanded height */
+  max-height: 1000px; /* Allow for the card to expand based on its content */
   transition: max-height 0.3s ease-in-out;
-}
-
-/* ================= Status Message Styling ================= */
-.status-message {
-  position: absolute;
-  margin-top: 10px;
-  right: 10px;
-  color: #D56F00;
-  font-weight: bold;
-  font-size: 0.9rem;
-}
-
-.book-card-buttons button {
-  margin-top: 5px; /* Space between buttons */
-}
-
-.book-card .status-message {
-  margin-bottom: 15px;  /* Adds space between status message and buttons */
 }

@@ -1,7 +1,9 @@
+// src/components/BookCard.js
 import React, { useState } from 'react';
 import placeholderCover from '../assets/book-nook-placeholder.png';
 import BookCardButtons from './BookCardButtons';
 import { removeBookFromShelf } from '../services/api';
+import DOMPurify from 'dompurify';
 
 const normalizeBookData = (book) => {
   const defaultImageLinks = { thumbnail: '' };
@@ -84,35 +86,47 @@ const BookCard = ({
         {/* Expanded Book Information */}
         {isExpanded && (
           <div className="expanded-book-info">
-            <p><strong>Description:</strong> {normalizedBook.volumeInfo.description}</p>
-            <p><strong>Page Count:</strong> {normalizedBook.volumeInfo.pageCount}</p>
-            <p><strong>Publish Year:</strong> {normalizedBook.volumeInfo.publishedDate}</p>
-            <p><strong>ISBN:</strong> {book.isbn || 'N/A'}</p>
-            <p><strong>Status:</strong> {normalizedBook.status}</p>
+            <div className="small-expanded-book-info">
+              <p><strong>ISBN: </strong> {book.isbn || 'N/A'}</p>
+              <p><strong>Publisher: </strong> {normalizedBook.volumeInfo.publisher}</p>
+              <p><strong>Published: </strong> {normalizedBook.volumeInfo.publishedDate}</p>
+              <p><strong>Page Count: </strong> {normalizedBook.volumeInfo.pageCount}</p>
+            </div>
+            <p>
+              <strong>Description: </strong>
+              <span
+                dangerouslySetInnerHTML={{
+                  __html: DOMPurify.sanitize(normalizedBook.volumeInfo.description || 'No description available.'),
+                }}
+              ></span>
+            </p>
           </div>
         )}
       </div>
 
-      {/* Status Message */}
-      {statusMessage[normalizedBook.googleBookId] && (
-        <p className="status-message">{statusMessage[normalizedBook.googleBookId]}</p>
-      )}
+      <div className="button-section">
+        {/* Status Message */}
+        <p className="status-message">
+          {statusMessage[normalizedBook.googleBookId] || '\u00A0'}
+        </p>
+        
 
-      {/* Book Card Buttons and Remove Button */}
-      <div className="book-card-buttons">
-        <BookCardButtons
-          normalizedBook={normalizedBook}
-          setUserLibraryBooks={setUserLibraryBooks}
-          setBooks={setBooks}
-          setStatusMessage={setStatusMessage}
-        />
+        {/* Book Card Buttons and Remove Button */}
+        <div className="book-card-buttons">
+          <BookCardButtons
+            normalizedBook={normalizedBook}
+            setUserLibraryBooks={setUserLibraryBooks}
+            setBooks={setBooks}
+            setStatusMessage={setStatusMessage}
+          />
 
-        {/* Remove from Library Button */}
-        {normalizedBook.existsInLibrary && (
-          <button className="btn remove-from-library-btn" onClick={handleRemoveFromLibrary}>
-            Remove
-          </button>
-        )}
+          {/* Remove from Library Button */}
+          {normalizedBook.existsInLibrary && (
+            <button className="btn remove-from-library-btn" onClick={handleRemoveFromLibrary}>
+              Remove
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
