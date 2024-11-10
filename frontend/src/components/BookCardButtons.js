@@ -1,4 +1,3 @@
-// src/components/BookCardButtons.js
 import React, { useState, useEffect, useRef } from 'react';
 import { updateBookStatus, addBookToShelf } from '../services/api';
 
@@ -55,25 +54,25 @@ const BookCardButtons = ({
       );
 
       let statusMessage;
-    switch (status) {
-      case 'unread':
-        statusMessage = 'Added to TBR Shelf';
-        break;
-      case 'read':
-        statusMessage = "Added to Read Shelf";
-        break;
-      case 'currently reading':
-        statusMessage = 'Added to Currently Reading';
-        break;
-      default:
-        statusMessage = `Added to ${status}`;
-        break;
-    }
+      switch (status) {
+        case 'unread':
+          statusMessage = 'Added to TBR Shelf';
+          break;
+        case 'read':
+          statusMessage = "Added to Read Shelf";
+          break;
+        case 'currently reading':
+          statusMessage = 'Added to Currently Reading';
+          break;
+        default:
+          statusMessage = `Added to ${status}`;
+          break;
+      }
 
-    setStatusMessage((prev) => ({
-      ...prev,
-      [normalizedBook.googleBookId]: statusMessage,
-    }));
+      setStatusMessage((prev) => ({
+        ...prev,
+        [normalizedBook.googleBookId]: statusMessage,
+      }));
     } catch (error) {
       console.error('Error updating book status:', error.message);
     }
@@ -100,25 +99,25 @@ const BookCardButtons = ({
       );
 
       let statusMessage;
-    switch (status) {
-      case 'unread':
-        statusMessage = 'Added to TBR Shelf';
-        break;
-      case 'read':
-        statusMessage = "Added to Read Shelf";
-        break;
-      case 'currently reading':
-        statusMessage = 'Added to Currently Reading';
-        break;
-      default:
-        statusMessage = `Added to ${status}`;
-        break;
-    }
+      switch (status) {
+        case 'unread':
+          statusMessage = 'Added to TBR Shelf';
+          break;
+        case 'read':
+          statusMessage = "Added to Read Shelf";
+          break;
+        case 'currently reading':
+          statusMessage = 'Added to Currently Reading';
+          break;
+        default:
+          statusMessage = `Added to ${status}`;
+          break;
+      }
 
-    setStatusMessage((prev) => ({
-      ...prev,
-      [normalizedBook.googleBookId]: statusMessage,
-    }));
+      setStatusMessage((prev) => ({
+        ...prev,
+        [normalizedBook.googleBookId]: statusMessage,
+      }));
     } catch (error) {
       console.error('Error adding book to shelf:', error.message);
     }
@@ -148,8 +147,6 @@ const BookCardButtons = ({
         {getButtonLabel()}
       </button>
 
-
-      
       <button
         className="btn dropdown-btn"
         onClick={toggleDropdown}
@@ -157,30 +154,26 @@ const BookCardButtons = ({
       >
         ▼
       </button>
-      
 
       {dropdownVisible && (
         <div className="dropdown" ref={dropdownRef}>
           <button
             className={`${normalizedBook.status === 'unread' ? 'disabled-btn' : 'dropdown-menu-button'}`}
             onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('unread') : () => handleStatusChange('unread')}
-            disabled={normalizedBook.status === 'unread'}
           >
-            TBR
-          </button>
-          <button
-            className={`${normalizedBook.status === 'read' ? 'disabled-btn' : 'dropdown-menu-button'}`}
-            onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('read') : () => handleStatusChange('read')}
-            disabled={normalizedBook.status === 'read'}
-          >
-            Read
+            TBR Shelf
           </button>
           <button
             className={`${normalizedBook.status === 'currently reading' ? 'disabled-btn' : 'dropdown-menu-button'}`}
             onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('currently reading') : () => handleStatusChange('currently reading')}
-            disabled={normalizedBook.status === 'currently reading'}
           >
-            Reading
+            Currently Reading
+          </button>
+          <button
+            className={`${normalizedBook.status === 'read' ? 'disabled-btn' : 'dropdown-menu-button'}`}
+            onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('read') : () => handleStatusChange('read')}
+          >
+            Read
           </button>
         </div>
       )}

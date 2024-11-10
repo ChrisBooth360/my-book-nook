@@ -21,8 +21,7 @@ const MyLibrary = () => {
 
   const getSearchQueryFromURL = useCallback(() => {
     const params = new URLSearchParams(location.search);
-    const query = params.get('search') || '';
-    return query;
+    return params.get('search') || '';
   }, [location.search]);
 
   const handleSearch = useCallback((query) => {
@@ -45,62 +44,43 @@ const MyLibrary = () => {
     setFilteredBooks(books);
   };
 
-  // Initial data fetch
-useEffect(() => {
-  const fetchUserBooks = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      const response = await getUserBooks(token);
-      if (response && response.data.books) {
-        const libraryBooks = response.data.books.map((book) => ({
-          ...book.bookId,
-          status: book.status,
-          existsInLibrary: true,
-        }));
+  useEffect(() => {
+    const fetchUserBooks = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await getUserBooks(token);
+        if (response && response.data.books) {
+          const libraryBooks = response.data.books.map((book) => ({
+            ...book.bookId,
+            status: book.status,
+            existsInLibrary: true,
+          }));
 
-        const sortedBooks = libraryBooks.sort((a, b) => {
-          const statusOrder = { 'currently reading': 1, 'unread': 2, 'read': 3 };
-          return statusOrder[a.status] - statusOrder[b.status] || (a.author || '').localeCompare(b.author || '');
-        });
+          const sortedBooks = libraryBooks.sort((a, b) => {
+            const statusOrder = { 'currently reading': 1, 'unread': 2, 'read': 3 };
+            return statusOrder[a.status] - statusOrder[b.status] || (a.author || '').localeCompare(b.author || '');
+          });
 
-        setBooks(sortedBooks);
-        setFilteredBooks(sortedBooks);
-        setUsername(response.data.username);
-        setTbrCount(libraryBooks.filter((book) => book.status === 'unread').length);
-        setCurrentlyReadingCount(libraryBooks.filter((book) => book.status === 'currently reading').length);
+          setBooks(sortedBooks);
+          setFilteredBooks(sortedBooks);
+          setUsername(response.data.username);
+          setTbrCount(libraryBooks.filter((book) => book.status === 'unread').length);
+          setCurrentlyReadingCount(libraryBooks.filter((book) => book.status === 'currently reading').length);
+        }
+      } catch (error) {
+        console.error('Error fetching user books:', error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error('Error fetching user books:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
-  fetchUserBooks();
-}, []); // Runs only once on mount
+    fetchUserBooks();
+  }, []); // Runs only once on mount
 
-// Update filteredBooks based on URL query change
-useEffect(() => {
-  const query = new URLSearchParams(location.search).get('search') || '';
-
-  const handleSearch = (searchQuery) => {
-    if (searchQuery) {
-      navigate(`/my-library?search=${encodeURIComponent(searchQuery)}`, { replace: true });
-      const filtered = books.filter(
-        (book) =>
-          book.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          book.author?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          book.isbn?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      setFilteredBooks(filtered);
-    } else {
-      setFilteredBooks(books);
-    }
-  };
-
-  handleSearch(query);
-}, [location.search, books, navigate]); // Only depends on search query and books
-
+  useEffect(() => {
+    const query = getSearchQueryFromURL();
+    handleSearch(query);
+  }, [location.search, books, getSearchQueryFromURL, handleSearch]); // Only depends on search query and books
 
   if (loading) return <div>Loading your library...</div>;
 

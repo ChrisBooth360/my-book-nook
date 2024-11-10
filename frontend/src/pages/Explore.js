@@ -12,26 +12,23 @@ const Explore = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState({});
-  
+
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const query = searchParams.get('search') || '';
 
-  useEffect(() => {
-    const fetchUserLibrary = async () => {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await getUserBooks(token);
-        const libraryBooks = response.data.books.map((book) => ({
-          googleBookId: book.bookId.googleBookId,
-          status: book.status,
-        }));
-        setUserLibraryBooks(libraryBooks);
-      } catch (error) {
-        console.error("Error fetching user library:", error);
-      }
-    };
-    fetchUserLibrary();
+  const fetchUserLibrary = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await getUserBooks(token);
+      const libraryBooks = response.data.books.map((book) => ({
+        googleBookId: book.bookId.googleBookId,
+        status: book.status,
+      }));
+      setUserLibraryBooks(libraryBooks);
+    } catch (error) {
+      console.error("Error fetching user library:", error);
+    }
   }, []);
 
   const handleSearch = useCallback(
@@ -65,6 +62,10 @@ const Explore = () => {
   );
 
   useEffect(() => {
+    fetchUserLibrary();
+  }, [fetchUserLibrary]);
+
+  useEffect(() => {
     if (query) {
       handleSearch(query);
     }
@@ -78,7 +79,6 @@ const Explore = () => {
         ...prev,
         { googleBookId: book.googleBookId, status: 'unread' },
       ]);
-
       setBooks((prevBooks) =>
         prevBooks.map((b) =>
           b.googleBookId === book.googleBookId
@@ -86,7 +86,6 @@ const Explore = () => {
             : b
         )
       );
-
       setStatusMessage((prev) => ({
         ...prev,
         [book.googleBookId]: 'Book added to shelf!',
@@ -105,7 +104,7 @@ const Explore = () => {
 
       {loading && <p>Loading...</p>}
       {error && <p className="error-message">{error}</p>}
-      <div className='explore-book-list'>
+      <div className="explore-book-list">
         <div className="book-list">
           {books.map((book) => (
             <BookCard
