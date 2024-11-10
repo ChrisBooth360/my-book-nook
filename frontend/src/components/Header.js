@@ -4,7 +4,7 @@ import '../App.css';
 import headerLogo from '../assets/book-nook-small-header.png';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import SearchBar from '../components/SearchBar';
+// import SearchBar from '../components/SearchBar';
 
 function Header() {
   const navigate = useNavigate();
@@ -16,9 +16,9 @@ function Header() {
 
   const isLoggedIn = !!localStorage.getItem('token'); // Check if user is logged in
 
-  const handleSearch = (query) => {
-    navigate(`/explore?search=${encodeURIComponent(query)}`);
-  };
+  // const handleSearch = (query) => {
+  //   navigate(`/explore?search=${encodeURIComponent(query)}`);
+  // };
 
   return (
     <header className="header">
@@ -27,11 +27,11 @@ function Header() {
           <img src={headerLogo} alt="Book Nook Logo" className="header-logo" />
         </Link>
       </div>
-      <div className="header-middle">
+      {/* <div className="header-middle">
         <div className="search-container">
           <SearchBar onSearch={handleSearch} />
         </div>
-      </div>
+      </div> */}
       <nav className="header-right nav-menu">
         <ul>
           <li><Link to="/my-library">My Library</Link></li>

@@ -15,6 +15,9 @@ const MyLibrary = () => {
   const [tbrCount, setTbrCount] = useState(0);
   const [currentlyReadingCount, setCurrentlyReadingCount] = useState(0);
   const [statusMessage, setStatusMessage] = useState({});
+  const [userLibraryBooks, setUserLibraryBooks] = useState([]);
+
+  
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,38 +47,38 @@ const MyLibrary = () => {
     setFilteredBooks(books);
   };
 
-  useEffect(() => {
-    const fetchUserBooks = async () => {
-      const token = localStorage.getItem('token');
-      try {
-        const response = await getUserBooks(token);
-        if (response && response.data.books) {
-          const libraryBooks = response.data.books.map((book) => ({
-            ...book.bookId,
-            status: book.status,
-            existsInLibrary: true,
-          }));
+  const fetchUserBooks = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await getUserBooks(token);
+      if (response && response.data.books) {
+        const libraryBooks = response.data.books.map((book) => ({
+          ...book.bookId,
+          status: book.status,
+          existsInLibrary: true,
+        }));
 
-          const sortedBooks = libraryBooks.sort((a, b) => {
-            const statusOrder = { 'currently reading': 1, 'unread': 2, 'read': 3 };
-            return statusOrder[a.status] - statusOrder[b.status] || (a.author || '').localeCompare(b.author || '');
-          });
+        const sortedBooks = libraryBooks.sort((a, b) => {
+          const statusOrder = { 'currently reading': 1, 'unread': 2, 'read': 3 };
+          return statusOrder[a.status] - statusOrder[b.status] || (a.author || '').localeCompare(b.author || '');
+        });
 
-          setBooks(sortedBooks);
-          setFilteredBooks(sortedBooks);
-          setUsername(response.data.username);
-          setTbrCount(libraryBooks.filter((book) => book.status === 'unread').length);
-          setCurrentlyReadingCount(libraryBooks.filter((book) => book.status === 'currently reading').length);
-        }
-      } catch (error) {
-        console.error('Error fetching user books:', error);
-      } finally {
-        setLoading(false);
+        setBooks(sortedBooks);
+        setFilteredBooks(sortedBooks);
+        setUsername(response.data.username);
+        setTbrCount(libraryBooks.filter((book) => book.status === 'unread').length);
+        setCurrentlyReadingCount(libraryBooks.filter((book) => book.status === 'currently reading').length);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching user books:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
+  useEffect(() => {
     fetchUserBooks();
-  }, []); // Runs only once on mount
+  }, [fetchUserBooks]); // Runs only once on mount
 
   useEffect(() => {
     const query = getSearchQueryFromURL();
@@ -120,10 +123,9 @@ const MyLibrary = () => {
                   key={book.googleBookId}
                   book={book}
                   status={book.status}
-                  onAddToShelf={() =>
-                    setStatusMessage({ [book.googleBookId]: 'Book already in your library!' })
-                  }
-                  userLibraryBooks={books}
+                  onAddToShelf={() => setStatusMessage({ [book.googleBookId]: 'Book already in your library!' })}
+                  userLibraryBooks={userLibraryBooks} // Pass the userLibraryBooks state
+                  setUserLibraryBooks={setUserLibraryBooks} // Pass the setUserLibraryBooks function
                   setBooks={setBooks}
                   statusMessage={statusMessage}
                   setStatusMessage={setStatusMessage}
