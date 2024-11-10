@@ -105,20 +105,21 @@ const Explore = () => {
 
       {loading && <p>Loading...</p>}
       {error && <p className="error-message">{error}</p>}
-
-      <div className="book-list">
-        {books.map((book) => (
-          <BookCard
-            key={book.googleBookId}
-            book={book}
-            onAddToShelf={() => onAddToShelf(book)}
-            userLibraryBooks={userLibraryBooks}
-            setUserLibraryBooks={setUserLibraryBooks}
-            setBooks={setBooks}
-            statusMessage={statusMessage}
-            setStatusMessage={setStatusMessage}
-          />
-        ))}
+      <div className='explore-book-list'>
+        <div className="book-list">
+          {books.map((book) => (
+            <BookCard
+              key={book.googleBookId}
+              book={book}
+              onAddToShelf={() => onAddToShelf(book)}
+              userLibraryBooks={userLibraryBooks}
+              setUserLibraryBooks={setUserLibraryBooks}
+              setBooks={setBooks}
+              statusMessage={statusMessage}
+              setStatusMessage={setStatusMessage}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );

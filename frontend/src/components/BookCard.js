@@ -1,5 +1,5 @@
 // src/components/BookCard.js
-import React from 'react';
+import React, { useState } from 'react';
 import placeholderCover from '../assets/book-nook-placeholder.png';
 import BookCardButtons from './BookCardButtons';
 import { removeBookFromShelf } from '../services/api';
@@ -48,16 +48,13 @@ const BookCard = ({
 }) => {
   const normalizedBook = normalizeBookData(book);
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const handleRemoveFromLibrary = async () => {
     const token = localStorage.getItem('token');
     try {
       await removeBookFromShelf(token, normalizedBook.googleBookId);
-  
-      // Update the books state directly using setBooks
-      setBooks((prevBooks) =>
-        prevBooks.filter((b) => b.googleBookId !== normalizedBook.googleBookId)
-      );
-  
+      setBooks((prevBooks) => prevBooks.filter((b) => b.googleBookId !== normalizedBook.googleBookId));
       setStatusMessage((prev) => ({
         ...prev,
         [normalizedBook.googleBookId]: 'Book removed from library',
@@ -66,22 +63,43 @@ const BookCard = ({
       console.error('Error removing book from library:', error.message);
     }
   };
-  
+
+  const handleToggleExpand = () => {
+    setIsExpanded((prevState) => !prevState);
+  };
 
   return (
-    <div className={`book-card ${normalizedBook.status === 'currently reading' ? 'currently-reading' : ''}`}>
+    <div className={`book-card ${normalizedBook.status === 'currently reading' ? 'currently-reading' : ''} ${isExpanded ? 'expanded' : ''}`}>
+      {/* Book Thumbnail */}
       <img 
         src={normalizedBook.volumeInfo.imageLinks.thumbnail || placeholderCover} 
         alt="Book cover" 
+        onClick={handleToggleExpand} 
       />
+
+      {/* Book Details */}
       <div className="book-details">
-        <h3>{normalizedBook.volumeInfo.title}</h3>
+        <h3 onClick={handleToggleExpand}>{normalizedBook.volumeInfo.title}</h3>
         <p>by {normalizedBook.volumeInfo.authors?.join(', ')}</p>
+        
+        {/* Expanded Book Information */}
+        {isExpanded && (
+          <div className="expanded-book-info">
+            <p><strong>Description:</strong> {normalizedBook.volumeInfo.description}</p>
+            <p><strong>Page Count:</strong> {normalizedBook.volumeInfo.pageCount}</p>
+            <p><strong>Publish Year:</strong> {normalizedBook.volumeInfo.publishedDate}</p>
+            <p><strong>ISBN:</strong> {book.isbn || 'N/A'}</p>
+            <p><strong>Status:</strong> {normalizedBook.status}</p>
+          </div>
+        )}
       </div>
 
+      {/* Status Message */}
       {statusMessage[normalizedBook.googleBookId] && (
         <p className="status-message">{statusMessage[normalizedBook.googleBookId]}</p>
       )}
+
+      {/* Book Card Buttons and Remove Button */}
       <div className="book-card-buttons">
         <BookCardButtons
           normalizedBook={normalizedBook}
@@ -90,6 +108,7 @@ const BookCard = ({
           setStatusMessage={setStatusMessage}
         />
 
+        {/* Remove from Library Button */}
         {normalizedBook.existsInLibrary && (
           <button className="btn remove-from-library-btn" onClick={handleRemoveFromLibrary}>
             Remove
