@@ -1,4 +1,3 @@
-// src/pages/MyLibrary.js
 import React, { useEffect, useState, useCallback } from 'react';
 import { getUserBooks } from '../services/api';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -6,6 +5,7 @@ import '../App.css';
 import BookCard from '../components/BookCard';
 import Dashboard from '../components/Dashboard';
 import SearchBar from '../components/SearchBar';
+import SortBar from '../components/SortBar'; // Import SortBar
 
 const MyLibrary = () => {
   const [books, setBooks] = useState([]);
@@ -16,8 +16,7 @@ const MyLibrary = () => {
   const [currentlyReadingCount, setCurrentlyReadingCount] = useState(0);
   const [statusMessage, setStatusMessage] = useState({});
   const [userLibraryBooks, setUserLibraryBooks] = useState([]);
-
-  
+  const [sortCriteria, setSortCriteria] = useState('title'); // State to store the current sorting criteria
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -85,6 +84,28 @@ const MyLibrary = () => {
     handleSearch(query);
   }, [location.search, books, getSearchQueryFromURL, handleSearch]); // Only depends on search query and books
 
+  const sortBooks = (category) => {
+    const sortedBooks = [...books].sort((a, b) => {
+      if (category === 'author') {
+        // Check if authors are arrays and use the first author for comparison
+        const authorA = Array.isArray(a.author) ? a.author[0] : a.author;
+        const authorB = Array.isArray(b.author) ? b.author[0] : b.author;
+        return (authorA || '').localeCompare(authorB || '');
+      }
+  
+      if (category === 'status') {
+        const statusOrder = { 'currently reading': 1, 'unread': 2, 'read': 3 };
+        return statusOrder[a.status] - statusOrder[b.status];
+      }
+  
+      // Default to sorting by title
+      return (a.title || '').localeCompare(b.title || '');
+    });
+  
+    setBooks(sortedBooks);
+  };
+  
+
   if (loading) return <div>Loading your library...</div>;
 
   return (
@@ -108,6 +129,9 @@ const MyLibrary = () => {
               </button>
             )}
           </div>
+
+          {/* Add SortBar component here */}
+          <SortBar onSort={sortBooks} />
 
           <div className="book-list">
             {filteredBooks.length === 0 ? (

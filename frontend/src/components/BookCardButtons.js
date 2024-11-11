@@ -62,7 +62,7 @@ const BookCardButtons = ({
           statusMessage = "Added to Read Shelf";
           break;
         case 'currently reading':
-          statusMessage = 'Added to Currently Reading';
+          statusMessage = 'Added to Reading';
           break;
         default:
           statusMessage = `Added to ${status}`;
@@ -107,7 +107,7 @@ const BookCardButtons = ({
           statusMessage = "Added to Read Shelf";
           break;
         case 'currently reading':
-          statusMessage = 'Added to Currently Reading';
+          statusMessage = 'Added to Reading';
           break;
         default:
           statusMessage = `Added to ${status}`;
