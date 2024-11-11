@@ -1,4 +1,3 @@
-// src/components/BookCard.js
 import React, { useState } from 'react';
 import placeholderCover from '../assets/book-nook-placeholder.png';
 import BookCardButtons from './BookCardButtons';
@@ -72,44 +71,57 @@ const BookCard = ({
   return (
     <div className={`book-card ${normalizedBook.status === 'currently reading' ? 'currently-reading' : ''} ${isExpanded ? 'expanded' : ''}`}>
       {/* Book Thumbnail */}
-      <img 
-        src={normalizedBook.volumeInfo.imageLinks.thumbnail || placeholderCover} 
-        alt="Book cover" 
-        onClick={handleToggleExpand} 
-      />
-
-      {/* Book Details */}
-      <div className="book-details">
-        <h3 onClick={handleToggleExpand}>{normalizedBook.volumeInfo.title}</h3>
-        <p>by {normalizedBook.volumeInfo.authors?.join(', ')}</p>
-        
-        {/* Expanded Book Information */}
-        {isExpanded && (
-          <div className="expanded-book-info">
-            <div className="small-expanded-book-info">
-              <p><strong>ISBN: </strong> {book.isbn || 'N/A'}</p>
-              <p><strong>Publisher: </strong> {normalizedBook.volumeInfo.publisher}</p>
-              <p><strong>Published: </strong> {normalizedBook.volumeInfo.publishedDate}</p>
-              <p><strong>Page Count: </strong> {normalizedBook.volumeInfo.pageCount}</p>
-            </div>
-            <p>
-              <strong>Description: </strong>
-              <span
-                dangerouslySetInnerHTML={{
-                  __html: DOMPurify.sanitize(normalizedBook.volumeInfo.description || 'No description available.'),
-                }}
-              ></span>
-            </p>
-          </div>
-        )}
+      <div>
+        <img 
+          src={normalizedBook.volumeInfo.imageLinks.thumbnail || placeholderCover} 
+          alt="Book cover" 
+          onClick={handleToggleExpand} 
+        />
       </div>
+      
+      {/* Book Details */}
+
+<div className="book-details">
+  <div className="book-header">
+    <h3 onClick={handleToggleExpand}>{normalizedBook.volumeInfo.title}</h3>
+    <p>by {normalizedBook.volumeInfo.authors?.join(', ')}</p>
+  </div>
+  
+  <div className="details-wrapper">
+    {/* Expanded Book Information */}
+    {isExpanded && (
+      <div className="expanded-book-info">
+        <div className="small-expanded-book-info">
+          <p><strong>ISBN: </strong> {book.isbn || 'N/A'}</p>
+          <p><strong>Publisher: </strong> {normalizedBook.volumeInfo.publisher}</p>
+          <p><strong>Published: </strong> {normalizedBook.volumeInfo.publishedDate}</p>
+          <p><strong>Page Count: </strong> {normalizedBook.volumeInfo.pageCount}</p>
+        </div>
+        <p>
+          <strong>Description: </strong>
+          <span
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(normalizedBook.volumeInfo.description || 'No description available.'),
+            }}
+          ></span>
+        </p>
+      </div>
+    )}
+    {/* More/Less Details Toggle */}
+    <div className="details-toggle">
+      <p onClick={handleToggleExpand}>
+        {isExpanded ? 'less details' : 'more details'}
+      </p>
+    </div>
+  </div>
+</div>
+
 
       <div className="button-section">
         {/* Status Message */}
         <p className="status-message">
           {statusMessage[normalizedBook.googleBookId] || '\u00A0'}
         </p>
-        
 
         {/* Book Card Buttons and Remove Button */}
         <div className="book-card-buttons">
