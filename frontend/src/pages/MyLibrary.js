@@ -1,3 +1,4 @@
+// src/pages/MyLibrary.js
 import React, { useEffect, useState, useCallback } from 'react';
 import { getUserBooks } from '../services/api';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -16,7 +17,6 @@ const MyLibrary = () => {
   const [currentlyReadingCount, setCurrentlyReadingCount] = useState(0);
   const [statusMessage, setStatusMessage] = useState({});
   const [userLibraryBooks, setUserLibraryBooks] = useState([]);
-  const [sortCriteria, setSortCriteria] = useState('title'); // State to store the current sorting criteria
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -86,24 +86,53 @@ const MyLibrary = () => {
 
   const sortBooks = (category) => {
     const sortedBooks = [...books].sort((a, b) => {
-      if (category === 'author') {
-        // Check if authors are arrays and use the first author for comparison
-        const authorA = Array.isArray(a.author) ? a.author[0] : a.author;
-        const authorB = Array.isArray(b.author) ? b.author[0] : b.author;
-        return (authorA || '').localeCompare(authorB || '');
-      }
+      const statusOrder = { 'currently reading': 1, 'unread': 2, 'read': 3 };
+
+      if (a.status === 'currently reading' && b.status !== 'currently reading') return -1;
+      if (a.status !== 'currently reading' && b.status === 'currently reading') return 1;
+
   
-      if (category === 'status') {
-        const statusOrder = { 'currently reading': 1, 'unread': 2, 'read': 3 };
-        return statusOrder[a.status] - statusOrder[b.status];
-      }
+      switch (category) {
+        case 'default':
+          return (
+            statusOrder[a.status] - statusOrder[b.status] ||
+            new Date(b.addedDate) - new Date(a.addedDate) // Newest books first
+          );
   
-      // Default to sorting by title
-      return (a.title || '').localeCompare(b.title || '');
+        case 'title':
+          return (a.title || '').localeCompare(b.title || '');
+  
+        case 'author': {
+          const authorA = Array.isArray(a.authors) ? a.authors[0] : a.authors;
+          const authorB = Array.isArray(b.authors) ? b.authors[0] : b.authors;
+          const lastNameA = authorA?.split(' ').pop() || '';
+          const lastNameB = authorB?.split(' ').pop() || '';
+          return lastNameA.localeCompare(lastNameB);
+        }
+  
+        case 'statusAuthor':
+          return (
+            statusOrder[a.status] - statusOrder[b.status] ||
+            (Array.isArray(a.authors) ? a.authors[0] : a.authors).split(' ').pop().localeCompare(
+              (Array.isArray(b.authors) ? b.authors[0] : b.authors).split(' ').pop()
+            )
+          );
+  
+        case 'statusTitle':
+          return (
+            statusOrder[a.status] - statusOrder[b.status] ||
+            (a.title || '').localeCompare(b.title || '')
+          );
+  
+        default:
+          return (a.title || '').localeCompare(b.title || '');
+      }
     });
   
     setBooks(sortedBooks);
+    setFilteredBooks(sortedBooks); // Update filteredBooks with sorted order
   };
+  
   
 
   if (loading) return <div>Loading your library...</div>;
@@ -121,17 +150,20 @@ const MyLibrary = () => {
         </div>
 
         <div className="right-section">
-          <div className="search-bar-container">
-            <SearchBar onSearch={handleSearch} placeholder="Search your library" />
-            {getSearchQueryFromURL() && (
-              <button onClick={handleClearSearch} className="btn back-to-library-button">
-                Back
-              </button>
-            )}
-          </div>
+          <div className='search-and-sort-container'>
+            <div className="search-bar-container">
+              <SearchBar onSearch={handleSearch} placeholder="Search your library" />
+              {getSearchQueryFromURL() && (
+                <button onClick={handleClearSearch} className="btn back-to-library-button">
+                  Back
+                </button>
+              )}
+            </div>
 
-          {/* Add SortBar component here */}
-          <SortBar onSort={sortBooks} />
+            <div className="library-sort-bar">
+              <SortBar onSort={sortBooks} />
+            </div>
+          </div>
 
           <div className="book-list">
             {filteredBooks.length === 0 ? (
@@ -148,8 +180,8 @@ const MyLibrary = () => {
                   book={book}
                   status={book.status}
                   onAddToShelf={() => setStatusMessage({ [book.googleBookId]: 'Book already in your library!' })}
-                  userLibraryBooks={userLibraryBooks} // Pass the userLibraryBooks state
-                  setUserLibraryBooks={setUserLibraryBooks} // Pass the setUserLibraryBooks function
+                  userLibraryBooks={userLibraryBooks}
+                  setUserLibraryBooks={setUserLibraryBooks}
                   setBooks={setBooks}
                   statusMessage={statusMessage}
                   setStatusMessage={setStatusMessage}
@@ -158,6 +190,7 @@ const MyLibrary = () => {
             )}
           </div>
         </div>
+
       </div>
     </div>
   );

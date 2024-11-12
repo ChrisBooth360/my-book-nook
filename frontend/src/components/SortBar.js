@@ -1,21 +1,28 @@
 // src/components/SortBar.js
-import React, { useState } from 'react';
+import React from 'react';
 import '../App.css';
 
 const SortBar = ({ onSort }) => {
-    const sortOptions = ['title', 'author', 'status']; // Default options
-  
-    return (
-      <div className="sort-bar">
-        <select onChange={(e) => onSort(e.target.value)} defaultValue="title">
-          {sortOptions.length > 0 && sortOptions.map((option) => (
-            <option key={option} value={option}>
-              {option.charAt(0).toUpperCase() + option.slice(1)}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  };
+  const sortOptions = [
+    { label: 'Default', value: 'default' },
+    { label: 'Title', value: 'title' },
+    { label: 'Author', value: 'author' },
+    { label: 'Status & Author', value: 'statusAuthor' },
+    { label: 'Status & Title', value: 'statusTitle' },
+  ];
+
+  return (
+    <div className="sort-bar">
+      <p>Sort by: </p>
+      <select onChange={(e) => onSort(e.target.value)} defaultValue="default">
+        {sortOptions.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+};
 
 export default SortBar;

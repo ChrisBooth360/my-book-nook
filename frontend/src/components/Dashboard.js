@@ -1,3 +1,4 @@
+// src/components/Dashboard.js
 import React, { useEffect, useState } from 'react';
 import placeholderProfile from '../assets/book-nook-sq-logo.png';
 import '../App.css';
@@ -31,14 +32,6 @@ const Dashboard = ({ username, totalBooks, tbrCount, currentlyReadingCount }) =>
       </div>
       <div className="dashboard-header">
         <h2>{username}'s Library</h2>
-        <div className="dashboard-stats">
-          <span className="total-books">{totalBooks}</span>
-          <span className="books-label"> books on your shelf</span>
-        </div>
-        <div className="dashboard-info">
-          <div>{tbrCount} on your TBR</div>
-          <div>{currentlyReadingCount} books read</div>
-        </div>
         <div className="currently-reading-section-small">
           <h3>Currently Reading</h3>
           {loading ? (
