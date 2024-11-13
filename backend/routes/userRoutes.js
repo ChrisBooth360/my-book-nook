@@ -15,5 +15,6 @@ router.get('/profile', authMiddleware, userController.getUserProfile);
 router.put('/profile', authMiddleware, userController.updateUserProfile);
 router.put('/profile/password', authMiddleware, userController.changePassword);
 router.get('/currently-reading', authMiddleware, userController.getCurrentlyReading);
+router.get('/tbr', authMiddleware, userController.getTbr)
 
 module.exports = router;

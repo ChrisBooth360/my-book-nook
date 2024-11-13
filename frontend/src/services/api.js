@@ -99,3 +99,11 @@ export const getCurrentlyReadingBooks = async (token) => {
     },
   });
 };
+
+export const getTbrBooks = async (token) => {
+  return axios.get(`${API_URL}/user/tbr`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
