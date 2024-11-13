@@ -245,31 +245,59 @@ exports.changePassword = async (req, res) => {
 // Get books with status 'currently reading'
 exports.getCurrentlyReading = async (req, res) => {
     try {
-        // Find the user by ID
+        // Find the user by ID and populate book details
         const user = await User.findById(req.user.id).populate('books.bookId');
         
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if the user has any books with 'currently reading' status
-        const currentlyReadingBooks = user.books.filter(book => book.status === 'currently reading');
-
-        const booksWithDetails = currentlyReadingBooks.length > 0
-            ? user.books.map(userBook => ({
+        // Filter books with 'currently reading' status and map the details
+        const currentlyReadingBooks = user.books
+            .filter(book => book.status === 'currently reading')
+            .map(userBook => ({
                 addedDate: userBook.addedDate.toISOString(),
                 status: userBook.status,
                 bookId: userBook.bookId,
-              }))
-            : [];  // Return an empty array if no books are found
+            }));
 
         res.json({
             username: user.username,
-            books: booksWithDetails
+            books: currentlyReadingBooks
         });
     } catch (error) {
         console.log('Error fetching currently reading books:', error);
         res.status(500).json({ message: 'Error fetching currently reading books' });
     }
 };
+
+// Get books with status 'unread'
+exports.getTbr = async (req, res) => {
+    try {
+        // Find the user by ID and populate book details
+        const user = await User.findById(req.user.id).populate('books.bookId');
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Filter books with 'unread' status and map the details
+        const tbrBooks = user.books
+            .filter(book => book.status === 'unread')
+            .map(userBook => ({
+                addedDate: userBook.addedDate.toISOString(),
+                status: userBook.status,
+                bookId: userBook.bookId,
+            }));
+
+        res.json({
+            username: user.username,
+            books: tbrBooks
+        });
+    } catch (error) {
+        console.log('Error fetching unread books:', error);
+        res.status(500).json({ message: 'Error fetching unread books' });
+    }
+};
+
 

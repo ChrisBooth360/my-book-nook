@@ -12,7 +12,7 @@ const SortBar = ({ onSort }) => {
   ];
 
   return (
-    <div className="sort-bar">
+    <div className="filter-and-sort-bar">
       <p>Sort by: </p>
       <select onChange={(e) => onSort(e.target.value)} defaultValue="default">
         {sortOptions.map((option) => (

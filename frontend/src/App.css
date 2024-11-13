@@ -459,6 +459,7 @@ button:hover {
 
 .search-bar-container {
   display: flex;
+  justify-content: center;
   align-items: center;
   padding: 10px 0;
   border-radius: 8px;
@@ -654,13 +655,19 @@ button:hover {
 .library-sort-bar {
   display: flex;
   justify-content: flex-end;
-  align-self: flex-end; /* Aligns the sort bar to the bottom of the search-and-sort-container */
+  margin-bottom: 5px; /* Optional: adds a bit of spacing between the bottom and the sort bar */
+  padding: 2.5px;
+}
+
+.library-filter-bar {
+  display: flex;
+  justify-content: flex-start;
   margin-bottom: 5px; /* Optional: adds a bit of spacing between the bottom and the sort bar */
   padding: 2.5px;
 }
 
 /* ================= SortBar Styling ================= */
-.sort-bar {
+.filter-and-sort-bar {
   display: flex;
   justify-content: center; /* Center the items horizontally */
   align-items: center;
@@ -669,13 +676,13 @@ button:hover {
   border-radius: 5px;
 }
 
-.sort-bar p {
+.filter-and-sort-bar p {
   margin: 0;
   font-size: 0.87rem;
   color: #191919;
 }
 
-.sort-bar select {
+.filter-and-sort-bar select {
   padding: 2px; /* Padding for better click area */
   font-size: 0.87rem;
   color: #191919;
@@ -685,19 +692,19 @@ button:hover {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-.sort-bar select:hover,
-.sort-bar select:focus {
+.filter-and-sort-bar select:hover,
+.filter-and-sort-bar select:focus {
   background-color: #Fff; /* Hover and focus color */
   color: #000;
   outline: none;
 }
 
-.sort-bar select option {
+.filter-and-sort-bar select option {
   background-color: #fff;
   color: #333;
 }
 
-.search-and-sort-container {
+.filter-and-sort-container {
   display: flex;
   justify-content: space-between; /* Aligns search bar to the left and sort bar to the right */
   width: 100%; /* Makes container span the full width of the parent */
@@ -706,3 +713,5 @@ button:hover {
   margin-bottom: 2px; /* Adds space between the search/sort bar and the book list */
   position: relative;
 }
+
+
