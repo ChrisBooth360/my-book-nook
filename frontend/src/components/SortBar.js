@@ -7,8 +7,6 @@ const SortBar = ({ onSort }) => {
     { label: 'Default', value: 'default' },
     { label: 'Title', value: 'title' },
     { label: 'Author', value: 'author' },
-    { label: 'Status & Author', value: 'statusAuthor' },
-    { label: 'Status & Title', value: 'statusTitle' },
   ];
 
   return (

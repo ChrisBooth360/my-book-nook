@@ -459,11 +459,9 @@ button:hover {
 
 .search-bar-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px 0;
-  border-radius: 8px;
-  max-width: 500px;
+  justify-content: center; /* Center the SearchBar horizontally */
+  width: 100%;  /* Ensure full width so that centering works */
+  margin-top: 20px;
 }
 
 .search-bar-container .back-to-library-button {
@@ -498,7 +496,8 @@ button:hover {
 .right-section {
   display: flex;
   flex-direction: column;
-  align-content: center;
+  align-items: center; /* This will center the content horizontally */
+  justify-content: flex-start;
   width: 100%;
   max-width: 800px;
   margin-left: 20px;

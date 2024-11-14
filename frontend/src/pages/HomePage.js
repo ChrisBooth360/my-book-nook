@@ -1,3 +1,4 @@
+// src/pages/HomePage.js
 import React, { useState } from 'react';
 import { loginUser, registerUser } from '../services/api'; // Import the register function
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection

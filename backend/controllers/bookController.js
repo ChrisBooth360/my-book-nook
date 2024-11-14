@@ -1,4 +1,4 @@
-// bookController.js
+// controllers/bookController.js
 const Book = require('../models/Book');
 const User = require('../models/User');
 const axios = require('axios');

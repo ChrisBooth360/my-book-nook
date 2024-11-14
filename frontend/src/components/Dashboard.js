@@ -1,6 +1,6 @@
 // src/components/Dashboard.js
 import React, { useEffect, useState } from 'react';
-import placeholderProfile from '../assets/book-nook-sq-logo.png';
+import placeholderProfile from '../assets/example-pfp.jpeg';
 import '../App.css';
 import { getCurrentlyReadingBooks } from '../services/api';
 

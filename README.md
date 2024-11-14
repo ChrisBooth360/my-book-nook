@@ -109,8 +109,13 @@ This project is licensed under the MIT License.
 My Book Nook/
 ├── backend/
 │   ├── index.js
+│   ├── package-lock.json
+│   ├── package.json
 │   ├── config/
 │        └── db.js
+│   ├── controllers/
+│        ├── bookController.js
+│        └── userController.js
 │   ├── middleware/
 │        └── authMiddleware.js
 │   ├── models/
@@ -123,8 +128,6 @@ My Book Nook/
 │        ├── bookRoutes.test.js
 │        └── userRoutes.test.js
 ├── frontend/
-├── node_modules/
-│   └── etc
 ├── .env
 ├── .gitignore
 ├── .package-lock.json
@@ -133,25 +136,29 @@ My Book Nook/
 
 frontend/
 ├── public/
-│   ├── favicon.ico
 │   ├── index.html
-│   ├── logo192.png
-│   ├── logo512.png
-│   ├── manifest.json
-│   ├── robots.txt
 ├── src/
+│   ├── assets/
+│        └── (a bunch of pngs)
 │   ├── components/
-│        └── HelloWorld.js
+│        ├── BookCard.js
+│        ├── BookCardButtons.js
+│        ├── Dashboard.js
+│        ├── FilterBar.js
+│        ├── Header.js
+│        ├── SearchBar.js
+│        └── SortBar.js
 │   ├── pages/
+│        ├── Explore.js
+│        ├── HomePage.js
+│        ├── MyLibrary.js
+│        └── ProfilePage.js
 │   ├── services/
+│        └── api.js
 │   ├── App.css
 │   ├── App.js
-│   ├── App.test.js
 │   ├── index.css
-│   ├── index.js
-│   ├── logo.svg
-│   ├── reportWebVitals.js
-│   └── setupTests.js
+│   └── index.js
 ├── .gitignore
 ├── .package-lock.json
 ├── .package.json

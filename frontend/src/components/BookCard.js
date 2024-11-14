@@ -1,3 +1,4 @@
+// src/components/BookCard.js
 import React, { useState } from 'react';
 import placeholderCover from '../assets/book-nook-placeholder.png';
 import BookCardButtons from './BookCardButtons';
