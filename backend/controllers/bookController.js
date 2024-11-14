@@ -40,7 +40,15 @@ const searchGoogleBooks = async (req, res) => {
 };
 
 const addBookToUserCollection = async (req, res) => {
-    const { googleBookId, status = 'unread' } = req.body;
+    const { 
+        googleBookId, 
+        status = 'unread',
+        progress = 0,
+        review = "",
+        rating = 0,
+        location = 'on shelf' 
+    } = req.body;
+
     if (!googleBookId) {
         return res.status(400).json({ message: 'Google Book ID is required' });
     }
@@ -51,22 +59,22 @@ const addBookToUserCollection = async (req, res) => {
             params: { key: process.env.GOOGLE_BOOKS_API_KEY }
         });
 
-        // Destructure relevant fields from the fetched data
         const { 
             title, 
-            authors, 
+            authors = ['Unknown Author'], 
             industryIdentifiers, 
-            description, 
-            categories, 
-            pageCount, 
-            publishedDate,
-            publisher,
+            description = '', 
+            categories = [], 
+            pageCount = 0, 
+            publishedDate = '',
+            publisher = '',
             imageLinks,
-            language,
-            previewLink,
-            infoLink
+            language = 'en',
+            previewLink = '',
+            infoLink = ''
         } = bookData.volumeInfo;
 
+        // Extract ISBN if available
         const isbn = industryIdentifiers?.find(id => id.type === 'ISBN_13')?.identifier || industryIdentifiers?.[0]?.identifier;
 
         if (!isbn) {
@@ -76,21 +84,20 @@ const addBookToUserCollection = async (req, res) => {
         // Check if the book already exists in the database
         let existingBook = await Book.findOne({ isbn });
         if (!existingBook) {
-            // Create a new book entry if it doesn't exist
             existingBook = new Book({
                 googleBookId,
                 title,
-                authors: authors || ['Unknown Author'],
+                authors,
                 isbn,
                 description,
-                categories: categories || [],
-                pageCount: pageCount || 0,
+                categories,
+                pageCount,
                 publishedDate,
                 publisher,
                 thumbnail: imageLinks?.thumbnail || '',
-                language: language || 'en',
-                previewLink: previewLink || '',
-                infoLink: infoLink || ''
+                language,
+                previewLink,
+                infoLink
             });
             await existingBook.save();
         }
@@ -105,12 +112,19 @@ const addBookToUserCollection = async (req, res) => {
             return res.status(200).json({ message: 'Book already in your collection' });
         }
 
-        // Add book to the user's collection with the specified status
-        user.books.push({ bookId: existingBook._id, status });
+        // Add book to the user's collection with the specified status and details
+        user.books.push({ 
+            bookId: existingBook._id, 
+            status, 
+            progress, 
+            review, 
+            rating, 
+            location 
+        });
+
         await user.save();
 
-        // Respond with success message and book ID
-        res.status(200).json({ message: 'Book added successfully', bookId: existingBook._id });
+        res.status(200).json({ message: 'Book added successfully', bookId: existingBook._id, user: user });
     } catch (error) {
         console.error('Error adding book from Google:', error.message);
         res.status(500).json({ message: 'Error adding book from Google' });

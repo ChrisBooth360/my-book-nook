@@ -24,12 +24,33 @@ const userSchema = new mongoose.Schema({
         },  // Reference to Book schema
         status: { 
             type: String, 
-            enum: ['read', 'unread', 'currently reading'], 
+            enum: ['read', 'unread', 'currently reading', 'dnf'], 
             default: 'unread' 
         },
         addedDate: { 
             type: Date, 
             default: Date.now 
+        },
+        progress: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 100
+        },
+        review: {
+            type: String,
+            default: ""
+        },
+        rating: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 5
+        },
+        location: {
+            type: String, 
+            enum: ['on shelf', 'borrowed', 'lent', 'ebook'], 
+            default: 'on shelf' 
         }
     }]
 });
