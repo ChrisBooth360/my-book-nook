@@ -1,4 +1,4 @@
-// userRoutes.test.js
+// tests/userRoutes.test.js
 const mongoose = require('mongoose');
 const request = require('supertest');
 const express = require('express');

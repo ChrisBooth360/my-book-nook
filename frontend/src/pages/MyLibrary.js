@@ -17,72 +17,22 @@ const MyLibrary = () => {
   const [tbrCount, setTbrCount] = useState(0);
   const [currentlyReadingCount, setCurrentlyReadingCount] = useState(0);
   const [statusMessage, setStatusMessage] = useState({});
-  const [filterCategory, setFilterCategory] = useState('wholeLibrary');
+  const [filterCategory, setFilterCategory] = useState('wholeLibrary');  // Track filter category
+  const [sortCategory, setSortCategory] = useState('default');  // Track sort category
   const [userLibraryBooks, setUserLibraryBooks] = useState([]);
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  const getSearchQueryFromURL = useCallback(() => {
-    const params = new URLSearchParams(location.search);
-    return params.get('search') || '';
-  }, [location.search]);
-
-  const handleSearch = useCallback((query) => {
-    if (query) {
-      navigate(`/my-library?search=${encodeURIComponent(query)}`, { replace: true });
-      const filtered = books.filter(
-        (book) =>
-          book.title?.toLowerCase().includes(query.toLowerCase()) ||
-          book.author?.toLowerCase().includes(query.toLowerCase()) ||
-          book.isbn?.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredBooks(filtered);
-    } else {
-      setFilteredBooks(books);
-    }
-  }, [books, navigate]);
-
-  const handleClearSearch = () => {
-    navigate('/my-library', { replace: true });
-    setFilteredBooks(books);
-  };
-
-  const filterBooks = useCallback(() => {
-    let filtered;
-    switch (filterCategory) {
-      case 'tbrShelf':
-        filtered = books.filter((book) => book.status === 'unread');
-        break;
-      case 'readShelf':
-        filtered = books.filter((book) => book.status === 'read');
-        break;
-      case 'wholeLibrary':
-      default:
-        filtered = books;
-        break;
-    }
-    setFilteredBooks(filtered);
-  }, [books, filterCategory]);
-
-  useEffect(() => {
-    filterBooks();
-  }, [filterBooks, books]);
-
-  const handleFilterChange = (category) => {
-    setFilterCategory(category);
-    sortBooks("default");  // Automatically sort by default when filter changes
-  };
-
-  const sortBooks = useCallback((category) => {
-    console.log(books); // Check if books are being populated properly
-  
-    const sortedBooks = [...books].sort((a, b) => {
+  // Sort books logic
+  const sortBooks = useCallback((category, booksToSort) => {
+    const booksToUse = booksToSort || books;
+    const sortedBooks = [...booksToUse].sort((a, b) => {
       const statusOrder = { 'currently reading': 1, 'unread': 2, 'read': 3 };
-  
+
       if (a.status === 'currently reading' && b.status !== 'currently reading') return -1;
       if (a.status !== 'currently reading' && b.status === 'currently reading') return 1;
-  
+
       switch (category) {
         case 'default':
           return (
@@ -98,32 +48,19 @@ const MyLibrary = () => {
           const lastNameB = authorB?.split(' ').pop() || '';
           return lastNameA.localeCompare(lastNameB);
         }
-        case 'statusAuthor':
-          return (
-            statusOrder[a.status] - statusOrder[b.status] ||
-            (Array.isArray(a.authors) ? a.authors[0] : a.authors)
-              .split(' ')
-              .pop()
-              .localeCompare(
-                (Array.isArray(b.authors) ? b.authors[0] : b.authors)
-                  .split(' ')
-                  .pop()
-              )
-          );
-        case 'statusTitle':
-          return (
-            statusOrder[a.status] - statusOrder[b.status] ||
-            (a.title || '').localeCompare(b.title || '')
-          );
         default:
           return (a.title || '').localeCompare(b.title || '');
       }
     });
-  
-    setBooks(sortedBooks);
-    setFilteredBooks(sortedBooks);
-  }, [books]);  // books is a dependency to ensure sorting updates when books change  
-  
+
+    setFilteredBooks(sortedBooks);  // Directly update filteredBooks after sorting
+  }, [books]);
+
+  const getSearchQueryFromURL = useCallback(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('search') || '';
+  }, [location.search]);
+
   const fetchUserBooks = useCallback(async () => {
     const token = localStorage.getItem('token');
     try {
@@ -134,29 +71,82 @@ const MyLibrary = () => {
           status: book.status,
           existsInLibrary: true,
         }));
-  
+
         setBooks(libraryBooks);
         setFilteredBooks(libraryBooks); // Default view
-  
-        console.log(libraryBooks);
-  
         setUsername(response.data.username);
         setTbrCount(libraryBooks.filter((book) => book.status === 'unread').length);
         setCurrentlyReadingCount(libraryBooks.filter((book) => book.status === 'currently reading').length);
-  
-        // Now call sortBooks after setting the books state
-        sortBooks("default");  // This will use the updated books state
       }
     } catch (error) {
       console.error('Error fetching user books:', error);
     } finally {
       setLoading(false);
     }
-  }, [sortBooks]); // Keep sortBooks as a dependency
+  }, []);  // Only need to run once, no need to add sortBooks as a dependency here
+
+  const handleSearch = useCallback((query) => {
+    setFilterCategory("wholeLibrary");  // Reset filter to Whole Library on search
+    if (query) {
+      navigate(`/my-library?search=${encodeURIComponent(query)}`, { replace: true });
+      const filtered = books.filter((book) => {
+        const titleMatch = book.title?.toLowerCase().includes(query.toLowerCase());
+        const authorMatch = Array.isArray(book.authors)
+          ? book.authors.some((author) => author.toLowerCase().includes(query.toLowerCase()))
+          : book.author?.toLowerCase().includes(query.toLowerCase());
+        const isbnMatch = book.isbn?.toLowerCase().includes(query.toLowerCase());
+  
+        return titleMatch || authorMatch || isbnMatch;
+      });
+      setFilteredBooks(filtered);
+    } else {
+      setFilteredBooks(books);
+      sortBooks("default", books);  // Ensure library is sorted when search is cleared
+    }
+  }, [books, navigate, sortBooks]);
+  
+
+  const handleClearSearch = () => {
+    navigate('/my-library', { replace: true });
+    setFilteredBooks(books);
+    sortBooks("default", books);  // Reapply sorting when clearing search
+  };
+  
+
+  const filterBooks = useCallback(() => {
+    let filtered;
+    switch (filterCategory) {
+      case 'tbrShelf':
+        filtered = books.filter((book) => book.status === 'unread');
+        break;
+      case 'readShelf':
+        filtered = books.filter((book) => book.status === 'read');
+        break;
+      case 'wholeLibrary':
+      default:
+        filtered = books;
+        break;
+    }
+    sortBooks(sortCategory, filtered); // Apply sorting after filtering
+  }, [books, filterCategory, sortCategory, sortBooks]);
 
   useEffect(() => {
     fetchUserBooks();
   }, [fetchUserBooks]);
+
+  useEffect(() => {
+    filterBooks();  // Apply filter and sort after fetch
+  }, [filterCategory, sortCategory, filterBooks]);  // Run whenever filter or sort changes
+
+  // Define the handleFilterChange function
+  const handleFilterChange = (category) => {
+    setFilterCategory(category);  // Set the selected filter category
+  };
+
+  // Define the handleSortChange function
+  const handleSortChange = (category) => {
+    setSortCategory(category);  // Set the selected sort category
+  };
 
   if (loading) return <div>Loading your library...</div>;
 
@@ -184,15 +174,14 @@ const MyLibrary = () => {
           
           <div className='filter-and-sort-container'>
             <div className="library-filter-bar">
-              <FilterBar onFilter={handleFilterChange} />
+              <FilterBar filterCategory={filterCategory} onFilter={handleFilterChange} />
             </div>
             <div className="library-sort-bar">
-              <SortBar onSort={sortBooks} />
+              <SortBar onSort={handleSortChange} />
             </div>
           </div>
 
           <div className="book-list">
-            
             {filteredBooks.length === 0 ? (
               <div className="empty-shelf">
                 <p>You have no books in your library. Find some!</p>
@@ -217,7 +206,6 @@ const MyLibrary = () => {
             )}
           </div>
         </div>
-
       </div>
     </div>
   );

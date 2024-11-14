@@ -1,3 +1,4 @@
+// src/pages/ProfilePage.js
 import React, { useState, useEffect } from 'react';
 import { getUserProfile, updateUserProfile, changeUserPassword } from '../services/api';
 import '../App.css';
