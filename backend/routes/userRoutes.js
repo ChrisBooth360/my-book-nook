@@ -14,7 +14,12 @@ router.get('/search', authMiddleware, userController.searchUserBooks);
 router.get('/profile', authMiddleware, userController.getUserProfile);
 router.put('/profile', authMiddleware, userController.updateUserProfile);
 router.put('/profile/password', authMiddleware, userController.changePassword);
-router.get('/currently-reading', authMiddleware, userController.getCurrentlyReading);
-router.get('/tbr', authMiddleware, userController.getTbr)
+router.get('/:status', authMiddleware, userController.getBooksByStatus);
+router.put('/:googleBookId/progress', authMiddleware, userController.updateProgress);
+router.put('/:googleBookId/review', authMiddleware, userController.updateReview);
+// TODO - Implement controllers
+router.put('/:googleBookId/rating', authMiddleware, userController.updateRating);
+router.put('/:googleBookId/location', authMiddleware, userController.updateLocation);
+router.delete('/:googleBookId/review', authMiddleware, userController.removeReview)
 
 module.exports = router;

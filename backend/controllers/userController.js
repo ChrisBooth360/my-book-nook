@@ -72,9 +72,13 @@ exports.getUserBooks = async (req, res) => {
 
         const userBooksWithDetails = user.books.length > 0
             ? user.books.map(userBook => ({
-                addedDate: userBook.addedDate.toISOString(),
-                status: userBook.status,
                 bookId: userBook.bookId,
+                status: userBook.status,
+                progress: userBook.progress,
+                review: userBook.review,
+                rating: userBook.rating,
+                location: userBook.location,
+                addedDate: userBook.addedDate.toISOString()
               }))
             : [];  // Return an empty array if no books are found
 
@@ -117,11 +121,10 @@ exports.updateBookStatus = async (req, res) => {
 
         res.json({ message: 'Book status updated successfully', book });
     } catch (error) {
+        console.log(error)
         res.status(500).json({ message: 'Error updating book status' });
     }
 };
-
-
 
 // Remove a book from user's collection
 exports.removeBook = async (req, res) => {
@@ -242,62 +245,209 @@ exports.changePassword = async (req, res) => {
     }
 };
 
-// Get books with status 'currently reading'
-exports.getCurrentlyReading = async (req, res) => {
-    try {
-        // Find the user by ID and populate book details
-        const user = await User.findById(req.user.id).populate('books.bookId');
+// Get books by status
+exports.getBooksByStatus = async (req, res) => {
+    const { status } = req.params;
+
+    try{
+        // Normalise 'currently reading' status
+        const normalizedStatus = status === 'currently-reading' ? 'currently reading' : status;
         
-        if (!user) {
+        const user = await User.findById(req.user.id).populate('books.bookId');
+
+        if (!user){
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Filter books with 'currently reading' status and map the details
-        const currentlyReadingBooks = user.books
-            .filter(book => book.status === 'currently reading')
+        // Filter books by status and map details
+        const statusBooks = user.books
+            .filter(book => book.status === normalizedStatus)
             .map(userBook => ({
-                addedDate: userBook.addedDate.toISOString(),
                 status: userBook.status,
                 bookId: userBook.bookId,
+                progress: userBook.progress,
+                review: userBook.review,
+                rating: userBook.rating,
+                location: userBook.location,
+                addedDate: userBook.addedDate.toISOString()
             }));
 
         res.json({
             username: user.username,
-            books: currentlyReadingBooks
+            books: statusBooks
         });
-    } catch (error) {
+    } catch (error){
         console.log('Error fetching currently reading books:', error);
         res.status(500).json({ message: 'Error fetching currently reading books' });
     }
 };
 
-// Get books with status 'unread'
-exports.getTbr = async (req, res) => {
+// Update user book progress
+exports.updateProgress = async (req, res) => {
+    const { progress } = req.body;
+    const { googleBookId } = req.params;
+
     try {
-        // Find the user by ID and populate book details
-        const user = await User.findById(req.user.id).populate('books.bookId');
-        
+        // Find the Book by googleBookId to get its ObjectId
+        const bookData = await Book.findOne({ googleBookId });
+        if (!bookData) {
+            return res.status(404).json({ message: 'Book not found in the database' });
+        }
+
+        const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Filter books with 'unread' status and map the details
-        const tbrBooks = user.books
-            .filter(book => book.status === 'unread')
-            .map(userBook => ({
-                addedDate: userBook.addedDate.toISOString(),
-                status: userBook.status,
-                bookId: userBook.bookId,
-            }));
+        // Find the user's book using the ObjectId
+        const book = user.books.find(book => book.bookId.toString() === bookData._id.toString());
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found in your collection' });
+        }
 
-        res.json({
-            username: user.username,
-            books: tbrBooks
-        });
+        // Update the book status
+        book.progress = progress;
+
+        if (progress === 100) {
+            book.status = 'read'
+        }
+
+        await user.save();
+
+        res.json({ message: 'Book status updated successfully', book });
     } catch (error) {
-        console.log('Error fetching unread books:', error);
-        res.status(500).json({ message: 'Error fetching unread books' });
+        console.log(error)
+        res.status(500).json({ message: 'Error updating book status' });
     }
 };
 
+// Update user book progress
+exports.updateReview = async (req, res) => {
+    const { review } = req.body;
+    const { googleBookId } = req.params;
 
+    try {
+        // Find the Book by googleBookId to get its ObjectId
+        const bookData = await Book.findOne({ googleBookId });
+        if (!bookData) {
+            return res.status(404).json({ message: 'Book not found in the database' });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the user's book using the ObjectId
+        const book = user.books.find(book => book.bookId.toString() === bookData._id.toString());
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found in your collection' });
+        }
+
+        // Update the book review
+        book.review = review;
+        await user.save();
+
+        res.json({ message: 'Book status updated successfully', book });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Error updating book status' });
+    }
+};
+
+// Update user book progress
+exports.updateRating = async (req, res) => {
+    const { status } = req.body;
+    const { googleBookId } = req.params;
+
+    try {
+        // Find the Book by googleBookId to get its ObjectId
+        const bookData = await Book.findOne({ googleBookId });
+        if (!bookData) {
+            return res.status(404).json({ message: 'Book not found in the database' });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the user's book using the ObjectId
+        const book = user.books.find(book => book.bookId.toString() === bookData._id.toString());
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found in your collection' });
+        }
+
+        // Update the book status
+        book.status = status;
+        await user.save();
+
+        res.json({ message: 'Book status updated successfully', book });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Error updating book status' });
+    }
+};
+
+// Update user book progress
+exports.updateLocation = async (req, res) => {
+    const { status } = req.body;
+    const { googleBookId } = req.params;
+
+    try {
+        // Find the Book by googleBookId to get its ObjectId
+        const bookData = await Book.findOne({ googleBookId });
+        if (!bookData) {
+            return res.status(404).json({ message: 'Book not found in the database' });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the user's book using the ObjectId
+        const book = user.books.find(book => book.bookId.toString() === bookData._id.toString());
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found in your collection' });
+        }
+
+        // Update the book status
+        book.status = status;
+        await user.save();
+
+        res.json({ message: 'Book status updated successfully', book });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Error updating book status' });
+    }
+};
+
+// Remove a book from user's collection
+exports.removeReview = async (req, res) => {
+    const { googleBookId } = req.params;
+
+    try {
+        const user = await User.findById(req.user.id).populate('books.bookId'); // Populate bookId to access googleBookId
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the index of the book using googleBookId
+        const bookIndex = user.books.findIndex(book => book.bookId.googleBookId === googleBookId);
+
+        if (bookIndex === -1) {
+            return res.status(404).json({ message: 'Book not found in your collection' });
+        }
+
+        // Remove the book from user's collection
+        user.books.splice(bookIndex, 1);
+        await user.save();
+
+        res.status(200).json({ message: 'Book removed from your collection' });
+    } catch (error) {
+        console.error('Error removing book:', error);
+        res.status(500).json({ message: 'Error removing book from your collection' });
+    }
+};
