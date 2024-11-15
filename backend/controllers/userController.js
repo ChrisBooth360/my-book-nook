@@ -314,14 +314,14 @@ exports.updateProgress = async (req, res) => {
 
         await user.save();
 
-        res.json({ message: 'Book status updated successfully', book });
+        res.json({ message: 'Book progress updated successfully', book });
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: 'Error updating book status' });
     }
 };
 
-// Update user book progress
+// Update book review
 exports.updateReview = async (req, res) => {
     const { review } = req.body;
     const { googleBookId } = req.params;
@@ -348,106 +348,110 @@ exports.updateReview = async (req, res) => {
         book.review = review;
         await user.save();
 
-        res.json({ message: 'Book status updated successfully', book });
+        res.json({ message: 'Book review updated successfully', book });
     } catch (error) {
         console.log(error)
         res.status(500).json({ message: 'Error updating book status' });
     }
 };
 
-// Update user book progress
-exports.updateRating = async (req, res) => {
-    const { status } = req.body;
-    const { googleBookId } = req.params;
-
-    try {
-        // Find the Book by googleBookId to get its ObjectId
-        const bookData = await Book.findOne({ googleBookId });
-        if (!bookData) {
-            return res.status(404).json({ message: 'Book not found in the database' });
-        }
-
-        const user = await User.findById(req.user.id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Find the user's book using the ObjectId
-        const book = user.books.find(book => book.bookId.toString() === bookData._id.toString());
-        if (!book) {
-            return res.status(404).json({ message: 'Book not found in your collection' });
-        }
-
-        // Update the book status
-        book.status = status;
-        await user.save();
-
-        res.json({ message: 'Book status updated successfully', book });
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: 'Error updating book status' });
-    }
-};
-
-// Update user book progress
-exports.updateLocation = async (req, res) => {
-    const { status } = req.body;
-    const { googleBookId } = req.params;
-
-    try {
-        // Find the Book by googleBookId to get its ObjectId
-        const bookData = await Book.findOne({ googleBookId });
-        if (!bookData) {
-            return res.status(404).json({ message: 'Book not found in the database' });
-        }
-
-        const user = await User.findById(req.user.id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Find the user's book using the ObjectId
-        const book = user.books.find(book => book.bookId.toString() === bookData._id.toString());
-        if (!book) {
-            return res.status(404).json({ message: 'Book not found in your collection' });
-        }
-
-        // Update the book status
-        book.status = status;
-        await user.save();
-
-        res.json({ message: 'Book status updated successfully', book });
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({ message: 'Error updating book status' });
-    }
-};
-
-// Remove a book from user's collection
+// Remove book review
 exports.removeReview = async (req, res) => {
     const { googleBookId } = req.params;
 
     try {
-        const user = await User.findById(req.user.id).populate('books.bookId'); // Populate bookId to access googleBookId
+        // Find the Book by googleBookId to get its ObjectId
+        const bookData = await Book.findOne({ googleBookId });
+        if (!bookData) {
+            return res.status(404).json({ message: 'Book not found in the database' });
+        }
 
+        const user = await User.findById(req.user.id);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Find the index of the book using googleBookId
-        const bookIndex = user.books.findIndex(book => book.bookId.googleBookId === googleBookId);
-
-        if (bookIndex === -1) {
+        // Find the user's book using the ObjectId
+        const book = user.books.find(book => book.bookId.toString() === bookData._id.toString());
+        if (!book) {
             return res.status(404).json({ message: 'Book not found in your collection' });
         }
 
-        // Remove the book from user's collection
-        user.books.splice(bookIndex, 1);
+        // Update the book review
+        book.review = "";
         await user.save();
 
-        res.status(200).json({ message: 'Book removed from your collection' });
+        res.json({ message: 'Book review removed successfully', book });
     } catch (error) {
-        console.error('Error removing book:', error);
-        res.status(500).json({ message: 'Error removing book from your collection' });
+        console.log(error)
+        res.status(500).json({ message: 'Error updating book status' });
+    }
+};
+
+// Update user book rating
+exports.updateRating = async (req, res) => {
+    const { rating } = req.body;
+    const { googleBookId } = req.params;
+
+    try {
+        // Find the Book by googleBookId to get its ObjectId
+        const bookData = await Book.findOne({ googleBookId });
+        if (!bookData) {
+            return res.status(404).json({ message: 'Book not found in the database' });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the user's book using the ObjectId
+        const book = user.books.find(book => book.bookId.toString() === bookData._id.toString());
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found in your collection' });
+        }
+
+        // Update the book status
+        book.rating = rating;
+        await user.save();
+
+        res.json({ message: 'Book rating updated successfully', book });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Error updating book status' });
+    }
+};
+
+// Update user book location
+exports.updateLocation = async (req, res) => {
+    const { location } = req.body;
+    const { googleBookId } = req.params;
+
+    try {
+        // Find the Book by googleBookId to get its ObjectId
+        const bookData = await Book.findOne({ googleBookId });
+        if (!bookData) {
+            return res.status(404).json({ message: 'Book not found in the database' });
+        }
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Find the user's book using the ObjectId
+        const book = user.books.find(book => book.bookId.toString() === bookData._id.toString());
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found in your collection' });
+        }
+
+        // Update the book location
+        book.location = location;
+        await user.save();
+
+        res.json({ message: 'Book location updated successfully', book });
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({ message: 'Error updating book status' });
     }
 };
