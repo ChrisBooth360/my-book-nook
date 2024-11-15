@@ -65,6 +65,9 @@ const BookCardButtons = ({
         case 'currently reading':
           statusMessage = 'Added to Reading';
           break;
+        case 'dnf':
+          statusMessage = "Added to DNF Shelf"
+          break;
         default:
           statusMessage = `Added to ${status}`;
           break;
@@ -110,6 +113,9 @@ const BookCardButtons = ({
         case 'currently reading':
           statusMessage = 'Added to Reading';
           break;
+        case 'dnf':
+          statusMessage = "Added to DNF Shelf"
+          break;
         default:
           statusMessage = `Added to ${status}`;
           break;
@@ -134,6 +140,8 @@ const BookCardButtons = ({
         return 'Read';
       case 'currently reading':
         return 'Reading';
+      case 'dnf':
+        return 'DNF';
       default:
         return 'On Shelf';
     }
@@ -142,14 +150,18 @@ const BookCardButtons = ({
   return (
     <div className="button-group">
       <button
-        className={`btn add-to-shelf-btn ${normalizedBook.existsInLibrary ? 'disabled-btn' : ''}`}
-        onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('unread') : undefined}
+        className={`btn add-to-shelf-btn ${
+          normalizedBook.existsInLibrary ? 'disabled-btn' : ''
+        }`}
+        onClick={
+          !normalizedBook.existsInLibrary ? () => handleAddToShelf('unread') : undefined
+        }
       >
         {getButtonLabel()}
       </button>
 
       <button
-        className={`btn dropdown-btn ${normalizedBook.status === 'currently reading' ? 'currently-reading' : ''}`}
+        className="btn dropdown-btn"
         onClick={toggleDropdown}
         ref={dropdownButtonRef}
       >
@@ -175,6 +187,12 @@ const BookCardButtons = ({
             onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('read') : () => handleStatusChange('read')}
           >
             Read
+          </button>
+          <button
+            className={`${normalizedBook.status === 'dnf' ? 'dropdown-disabled-btn' : 'dropdown-menu-button'}`}
+            onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('dnf') : () => handleStatusChange('dnf')}
+          >
+            DNF
           </button>
         </div>
       )}

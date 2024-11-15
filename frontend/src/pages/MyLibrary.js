@@ -28,7 +28,7 @@ const MyLibrary = () => {
   const sortBooks = useCallback((category, booksToSort) => {
     const booksToUse = booksToSort || books;
     const sortedBooks = [...booksToUse].sort((a, b) => {
-      const statusOrder = { 'currently reading': 1, 'unread': 2, 'read': 3 };
+      const statusOrder = { 'currently reading': 1, 'unread': 2, 'read': 3, 'dnf': 4 };
 
       if (a.status === 'currently reading' && b.status !== 'currently reading') return -1;
       if (a.status !== 'currently reading' && b.status === 'currently reading') return 1;
@@ -70,6 +70,10 @@ const MyLibrary = () => {
           ...book.bookId,
           status: book.status,
           existsInLibrary: true,
+          rating: book.rating,
+          review: book.review,
+          progress: book.progress,
+          location: book.location
         }));
 
         setBooks(libraryBooks);
@@ -121,6 +125,9 @@ const MyLibrary = () => {
         break;
       case 'readShelf':
         filtered = books.filter((book) => book.status === 'read');
+        break;
+      case 'dnfShelf':
+        filtered = books.filter((book) => book.status === 'dnf');
         break;
       case 'wholeLibrary':
       default:

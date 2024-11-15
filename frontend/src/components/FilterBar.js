@@ -7,6 +7,7 @@ const FilterBar = ({ filterCategory, onFilter }) => {
     { label: 'Whole Library', value: 'wholeLibrary' },
     { label: 'TBR Shelf', value: 'tbrShelf' },
     { label: 'Read Shelf', value: 'readShelf' },
+    { label: 'DNF Shelf', value: 'dnfShelf' }
   ];
 
   return (
