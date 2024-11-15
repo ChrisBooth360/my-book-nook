@@ -1,7 +1,9 @@
 // src/components/BookCard.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import placeholderCover from '../assets/book-nook-placeholder.png';
 import BookCardButtons from './BookCardButtons';
+import RatingBar from './RatingBar'
+import ProgressBar from './ProgressBar'
 import { removeBookFromShelf } from '../services/api';
 import DOMPurify from 'dompurify';
 
@@ -28,6 +30,10 @@ const normalizeBookData = (book) => {
       status: book.status || 'unread',
       existsInLibrary: true,
       googleBookId: book.googleBookId,
+      rating: book.rating,
+      progress: book.progress,
+      review: book.review,
+      location: book.location
     };
   } else {
     return {
@@ -51,6 +57,21 @@ const BookCard = ({
 
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Automatically clear statusMessage after 15 seconds
+  useEffect(() => {
+    if (statusMessage[normalizedBook.googleBookId]) {
+      const timer = setTimeout(() => {
+        setStatusMessage((prev) => {
+          const updated = { ...prev };
+          delete updated[normalizedBook.googleBookId];
+          return updated;
+        });
+      }, 15000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [statusMessage, normalizedBook.googleBookId, setStatusMessage]);
+
   const handleRemoveFromLibrary = async () => {
     const token = localStorage.getItem('token');
     try {
@@ -70,7 +91,10 @@ const BookCard = ({
   };
 
   return (
-    <div className={`book-card ${normalizedBook.status === 'currently reading' ? 'currently-reading' : ''} ${isExpanded ? 'expanded' : ''}`}>
+    <div className={`book-card 
+          ${normalizedBook.status === 'currently reading' ? 'currently-reading' : ''}
+          ${normalizedBook.status === 'dnf' ? 'dnf' : ''} 
+          ${isExpanded ? 'expanded' : ''}`}>
       {/* Book Thumbnail */}
       <div>
         <img 
@@ -81,41 +105,58 @@ const BookCard = ({
       </div>
       
       {/* Book Details */}
+      <div className="book-details">
+        <div className="book-header">
+          <h3 onClick={handleToggleExpand}>{normalizedBook.volumeInfo.title}</h3>
+          <p>by {normalizedBook.volumeInfo.authors?.join(', ')}</p>
+          {normalizedBook.status === 'read' || normalizedBook.status === 'dnf' ? 
+            <div className="book-card-rating-bar">
+              <RatingBar
+                  initialRating={normalizedBook.rating}
+                  googleBookId={normalizedBook.googleBookId}
+                />
+            </div> : ""
+          }
 
-<div className="book-details">
-  <div className="book-header">
-    <h3 onClick={handleToggleExpand}>{normalizedBook.volumeInfo.title}</h3>
-    <p>by {normalizedBook.volumeInfo.authors?.join(', ')}</p>
-  </div>
-  
-  <div className="details-wrapper">
-    {/* Expanded Book Information */}
-    {isExpanded && (
-      <div className="expanded-book-info">
-        <div className="small-expanded-book-info">
-          <p><strong>ISBN: </strong> {book.isbn || 'N/A'}</p>
-          <p><strong>Publisher: </strong> {normalizedBook.volumeInfo.publisher}</p>
-          <p><strong>Published: </strong> {normalizedBook.volumeInfo.publishedDate}</p>
-          <p><strong>Page Count: </strong> {normalizedBook.volumeInfo.pageCount}</p>
+          {normalizedBook.status === 'currently reading' ? 
+            <div>
+              <ProgressBar 
+                progress={normalizedBook.progress} 
+                googleBookId={normalizedBook.googleBookId}
+              />
+            </div> : ""
+          }
+          
         </div>
-        <p>
-          <strong>Description: </strong>
-          <span
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(normalizedBook.volumeInfo.description || 'No description available.'),
-            }}
-          ></span>
-        </p>
+        
+        <div className="details-wrapper">
+          {/* Expanded Book Information */}
+          {isExpanded && (
+            <div className="expanded-book-info">
+              <div className="small-expanded-book-info">
+                <p><strong>ISBN: </strong> {book.isbn || 'N/A'}</p>
+                <p><strong>Publisher: </strong> {normalizedBook.volumeInfo.publisher}</p>
+                <p><strong>Published: </strong> {normalizedBook.volumeInfo.publishedDate}</p>
+                <p><strong>Page Count: </strong> {normalizedBook.volumeInfo.pageCount}</p>
+              </div>
+              <p>
+                <strong>Description: </strong>
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(normalizedBook.volumeInfo.description || 'No description available.'),
+                  }}
+                ></span>
+              </p>
+            </div>
+          )}
+          {/* More/Less Details Toggle */}
+          <div className="details-toggle">
+            <p onClick={handleToggleExpand}>
+              {isExpanded ? 'less details' : 'more details'}
+            </p>
+          </div>
+        </div>
       </div>
-    )}
-    {/* More/Less Details Toggle */}
-    <div className="details-toggle">
-      <p onClick={handleToggleExpand}>
-        {isExpanded ? 'less details' : 'more details'}
-      </p>
-    </div>
-  </div>
-</div>
 
 
       <div className="button-section">

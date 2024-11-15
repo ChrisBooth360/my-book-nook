@@ -107,3 +107,19 @@ export const getTbrBooks = async (token) => {
     },
   });
 };
+
+export const updateRating = async (token, googleBookId, rating) => {
+  return axios.put(`${API_URL}/user/${googleBookId}/rating`, { rating }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const updateProgress = async (token, googleBookId, progress) => {
+  return axios.put(`${API_URL}/user/${googleBookId}/progress`, { progress }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
