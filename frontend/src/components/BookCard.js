@@ -4,6 +4,7 @@ import placeholderCover from '../assets/book-nook-placeholder.png';
 import BookCardButtons from './BookCardButtons';
 import RatingBar from './RatingBar'
 import ProgressBar from './ProgressBar'
+import ReviewBar from './ReviewBar'
 import { removeBookFromShelf } from '../services/api';
 import DOMPurify from 'dompurify';
 
@@ -133,6 +134,15 @@ const BookCard = ({
           {/* Expanded Book Information */}
           {isExpanded && (
             <div className="expanded-book-info">
+
+              {normalizedBook.status === 'read' || normalizedBook.status === 'dnf' ? 
+                <div className="book-card-review-bar">
+                  <ReviewBar
+                    initialReview={normalizedBook.review}
+                    googleBookId={normalizedBook.googleBookId}
+                  />
+                </div> : ""
+              }
               <div className="small-expanded-book-info">
                 <p><strong>ISBN: </strong> {book.isbn || 'N/A'}</p>
                 <p><strong>Publisher: </strong> {normalizedBook.volumeInfo.publisher}</p>

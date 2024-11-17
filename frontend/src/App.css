@@ -20,6 +20,10 @@ body {
   padding: 0;
 }
 
+textarea {
+  font-family: 'Open Sans', sans-serif;
+}
+
 h1, h2 {
   color: var(--primary-text-color);
 }
@@ -770,6 +774,7 @@ button:hover {
   height: 100%;
   background-color: #F8DCBF; /* Fill color */
   border-radius: 5px;
+  box-shadow: 2px 0px 3px rgba(0, 0, 0, 0.1);
 }
 
 .progress-buttons {
@@ -782,8 +787,7 @@ button:hover {
 .update-button {
   padding: 5px 10px;
   border: 1px solid #FA9939;
-  
-  cursor: pointer;
+  font-size: 14px;
 }
 
 .update-button:hover {
@@ -801,4 +805,95 @@ button:hover {
   padding: 5px;
   text-align: center;
   margin-right: 10px; /* Space between input and button */
+}
+
+/* ReviewBar */
+
+.book-card-rating-bar {
+  margin-right: 20px;
+}
+
+.review-bar-container {
+  margin: 10px 20px 20px 0; /* Top, Right, Bottom, Left */
+  width: calc(100% - 20px); /* Make the container narrower to account for the right margin */
+  box-sizing: border-box; /* Include padding and border in width calculation */
+}
+
+.review-bar-visible {
+  border-radius: 8px;
+  padding: 16px;
+  margin: 10px 0 20px 0; /* Remove excess right margin here to avoid overlap */
+  background-color: #D56F00;
+  width: 100%; /* Keep it fully responsive within the parent container */
+  box-sizing: border-box; /* Includes padding in width calculation */
+  overflow: hidden; /* Prevents content overflow */
+}
+
+/* Review Text */
+/* Review Text */
+.review-bar-visible p {
+  color: #fff9f3;
+  margin: 0; 
+  padding-top: 0;
+  word-wrap: break-word;
+}
+
+.review-bar-visible p {
+  margin-bottom: 20px; 
+}
+
+/* Review Textarea */
+.review-textarea {
+  height: 80px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  resize: none;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ensures textarea fits within the container */
+  box-sizing: border-box; /* Includes padding in width calculation */
+}
+
+/* Buttons Container */
+.review-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* Ensure the buttons align properly within the container */
+.review-button {
+  padding: 5px 10px;
+  font-size: 14px;
+  border: 1px solid #FA9939;
+}
+
+.review-button:hover{
+  border: 1px solid #FA9939;
+}
+
+.review-button:disabled {
+  background-color: #DBC0A4;
+  border: 1px solid #DBC0A4;
+  cursor: not-allowed;
+}
+
+.review-button.back-button {
+  background-color: #D56F00;
+  border: 1px solid #FA9939;
+}
+
+.review-button.back-button:hover{
+  background-color: #FA9939;
+  border: 1px solid #FA9939;
+}
+
+.review-button.delete-button {
+  background-color: #D05353;
+  border: none;
+}
+
+.review-button.delete-button:hover {
+  background-color: #BD3C3C;
 }
