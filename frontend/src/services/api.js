@@ -70,12 +70,6 @@ export const addBookToShelf = async (token, googleBookId, status) => {
   );
 };
 
-export const checkBookStatus = async (token, isbn) => {
-  return axios.get(`${API_URL}/books/check-status/${isbn}`, {
-      headers: { Authorization: `Bearer ${token}` }
-  });
-};
-
 export const updateBookStatus = async (token, googleBookId, status) => {
   return axios.put(
     `${API_URL}/user/${googleBookId}/status`,

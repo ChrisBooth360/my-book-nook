@@ -17,9 +17,13 @@ app.use(express.json());
 // Routes
 const bookRoutes = require('./routes/bookRoutes');
 const userRoutes = require('./routes/userRoutes');
+const userBooksRoutes = require('./routes/userBooksRoutes');
+const bookLocationRoutes = require('./routes/bookLocationRoutes');
 
 app.use('/api/books', bookRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/user-books', userBooksRoutes);
+app.use('/api/book-location', bookLocationRoutes)
 
 // Start the server only when this file is executed directly
 if (require.main === module) {
