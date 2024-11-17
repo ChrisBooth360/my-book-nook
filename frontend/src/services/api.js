@@ -123,3 +123,19 @@ export const updateProgress = async (token, googleBookId, progress) => {
     },
   });
 };
+
+export const updateReview = async (token, googleBookId, review) => {
+  return axios.put(`${API_URL}/user/${googleBookId}/review`, { review }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+export const removeReview = async (token, googleBookId) => {
+  return axios.put(`${API_URL}/user/${googleBookId}/review/remove`, {}, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+}
