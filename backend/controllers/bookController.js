@@ -46,7 +46,7 @@ const addBookToUserCollection = async (req, res) => {
         progress = 0,
         review = "",
         rating = 0,
-        location = 'on shelf' 
+        location
     } = req.body;
 
     if (!googleBookId) {
@@ -124,25 +124,10 @@ const addBookToUserCollection = async (req, res) => {
 
         await user.save();
 
-        res.status(200).json({ message: 'Book added successfully', bookId: existingBook._id, user: user });
+        res.status(200).json({ message: 'Book added successfully' });
     } catch (error) {
         console.error('Error adding book from Google:', error.message);
         res.status(500).json({ message: 'Error adding book from Google' });
-    }
-};
-
-const checkBookStatus = async (req, res) => {
-    const { googleBookId } = req.params;
-    try {
-        const user = await User.findById(req.user.id).populate('books.bookId');
-        const book = user.books.find((b) => b.bookId.googleBookId === googleBookId);
-        if (book) {
-            return res.status(200).json({ exists: true, status: book.status });
-        }
-        res.status(200).json({ exists: false });
-    } catch (error) {
-        console.error('Error checking book status:', error.message);
-        res.status(500).json({ message: 'Error checking book status' });
     }
 };
 
@@ -167,6 +152,5 @@ module.exports = {
     getAllBooks,
     searchGoogleBooks,
     addBookToUserCollection,
-    checkBookStatus,
     deleteBookFromLibrary
 };

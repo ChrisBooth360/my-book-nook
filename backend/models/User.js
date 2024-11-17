@@ -1,4 +1,3 @@
-// models/User.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -48,9 +47,28 @@ const userSchema = new mongoose.Schema({
             max: 5
         },
         location: {
-            type: String, 
-            enum: ['on shelf', 'borrowed', 'lent', 'ebook'], 
-            default: 'on shelf' 
+            onShelf: {
+                type: Boolean,
+                default: true,
+            },
+            borrowed: {
+                type: Object,
+                default: {
+                    person: null,
+                    dateBorrowed: null,
+                    dateReturned: null,
+                    dateDue: null
+                }
+            },
+            lent: {
+                type: Object,
+                default: {
+                    person: null,
+                    dateLent: null,
+                    dateReturned: null,
+                    dateDue: null
+                }
+            }
         }
     }]
 });

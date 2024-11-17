@@ -7,19 +7,9 @@ const userController = require('../controllers/userController');
 router.post('/register', userController.registerUser);
 router.post('/login', userController.loginUser);
 router.post('/logout', authMiddleware, userController.logoutUser);
-router.get('/', authMiddleware, userController.getUserBooks);
-router.put('/:googleBookId/status', authMiddleware, userController.updateBookStatus);
-router.delete('/:googleBookId', authMiddleware, userController.removeBook);
-router.get('/search', authMiddleware, userController.searchUserBooks);
+
 router.get('/profile', authMiddleware, userController.getUserProfile);
 router.put('/profile', authMiddleware, userController.updateUserProfile);
 router.put('/profile/password', authMiddleware, userController.changePassword);
-router.get('/:status', authMiddleware, userController.getBooksByStatus);
-router.put('/:googleBookId/progress', authMiddleware, userController.updateProgress);
-router.put('/:googleBookId/review', authMiddleware, userController.updateReview);
-router.put('/:googleBookId/review/remove', authMiddleware, userController.removeReview);
-router.put('/:googleBookId/rating', authMiddleware, userController.updateRating);
-router.put('/:googleBookId/location', authMiddleware, userController.updateLocation);
-
 
 module.exports = router;
