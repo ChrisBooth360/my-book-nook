@@ -3,7 +3,9 @@ const Book = require('../models/Book');
 
 // Helper to fetch user and check existence
 const getUserById = async (userId) => {
-    const user = await User.findById(userId).populate('books.bookId');
+    const user = await User.findById(userId)
+        .populate('books.bookId')
+        .populate('books.locationId')
     if (!user) throw new Error('User not found');
     return user;
 };
@@ -34,11 +36,11 @@ exports.getUserBooks = async (req, res) => {
 
         const userBooksWithDetails = user.books.map(userBook => ({
             bookId: userBook.bookId,
+            locationId: userBook.locationId,
             status: userBook.status,
             progress: userBook.progress,
             review: userBook.review,
             rating: userBook.rating,
-            location: userBook.location,
             addedDate: userBook.addedDate.toISOString()
         }));
 
@@ -88,11 +90,11 @@ exports.getBooksByStatus = async (req, res) => {
             .filter(book => book.status === normalizedStatus)
             .map(userBook => ({
                 bookId: userBook.bookId,
+                locationId: userBook.locationId,
                 status: userBook.status,
                 progress: userBook.progress,
                 review: userBook.review,
                 rating: userBook.rating,
-                location: userBook.location,
                 addedDate: userBook.addedDate.toISOString()
             }));
 

@@ -1,6 +1,7 @@
 // controllers/bookController.js
 const Book = require('../models/Book');
 const User = require('../models/User');
+const Location = require('../models/Location');
 const axios = require('axios');
 
 // Controller functions
@@ -46,7 +47,7 @@ const addBookToUserCollection = async (req, res) => {
         progress = 0,
         review = "",
         rating = 0,
-        location
+        location // This should include the onShelf, borrowed, lent info, if any
     } = req.body;
 
     if (!googleBookId) {
@@ -112,14 +113,37 @@ const addBookToUserCollection = async (req, res) => {
             return res.status(200).json({ message: 'Book already in your collection' });
         }
 
-        // Add book to the user's collection with the specified status and details
+        // Create a new Location document based on the provided location data
+        const newLocation = new Location({
+            userId: user._id,
+            bookId: existingBook._id,
+            onShelf: location?.onShelf ?? true, // Default to true if not provided
+            borrowed: location?.borrowed ?? {
+                person: null,
+                dateBorrowed: null,
+                dateReturned: null,
+                dateDue: null
+            },
+            lent: location?.lent ?? {
+                person: null,
+                dateLent: null,
+                dateReturned: null,
+                dateDue: null
+            },
+            history: location?.history ?? []
+        });
+
+        // Save the Location document
+        await newLocation.save();
+
+        // Add book to the user's collection with the specified status and the new locationId
         user.books.push({ 
             bookId: existingBook._id, 
             status, 
             progress, 
             review, 
             rating, 
-            location 
+            locationId: newLocation._id // Store the reference to the Location document
         });
 
         await user.save();
@@ -130,6 +154,7 @@ const addBookToUserCollection = async (req, res) => {
         res.status(500).json({ message: 'Error adding book from Google' });
     }
 };
+
 
 const deleteBookFromLibrary = async (req, res) => {
     const { bookId } = req.params;
