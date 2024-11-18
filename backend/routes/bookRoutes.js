@@ -12,7 +12,7 @@ const {
 // Routes
 router.get('/', getAllBooks);
 router.get('/search', authMiddleware, searchGoogleBooks);
-router.post('/search/add', authMiddleware, addBookToUserCollection);
+router.post('/add', authMiddleware, addBookToUserCollection);
 router.delete('/:bookId', authMiddleware, deleteBookFromLibrary);
 
 module.exports = router;

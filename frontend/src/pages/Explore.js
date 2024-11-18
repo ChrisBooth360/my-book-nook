@@ -1,7 +1,7 @@
 // src/pages/Explore.js
 import React, { useEffect, useState, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import { searchBooks, getUserBooks, addBookToShelf } from '../services/api';
+import { searchGoogleBooks, getUserBooks, addBookToShelf } from '../services/api';
 import '../App.css';
 import SearchBar from '../components/SearchBar';
 import BookCard from '../components/BookCard';
@@ -40,7 +40,7 @@ const Explore = () => {
       const token = localStorage.getItem('token');
 
       try {
-        const response = await searchBooks(token, query);
+        const response = await searchGoogleBooks(token, query);
         const booksWithStatus = response.map((book) => {
           const googleBookId = book.id;
           const userBook = userLibraryBooks.find((b) => b.googleBookId === googleBookId);

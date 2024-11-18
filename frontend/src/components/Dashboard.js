@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import placeholderProfile from '../assets/example-pfp.jpeg';
 import '../App.css';
-import { getCurrentlyReadingBooks } from '../services/api';
+import { getBooksByStatus } from '../services/api';
 
 const Dashboard = ({ username, totalBooks, tbrCount, currentlyReadingCount }) => {
   const [currentlyReadingBooks, setCurrentlyReadingBooks] = useState([]);
@@ -13,7 +13,7 @@ const Dashboard = ({ username, totalBooks, tbrCount, currentlyReadingCount }) =>
     const fetchCurrentlyReadingBooks = async () => {
       try {
         const token = localStorage.getItem('token'); // Retrieve token from localStorage or context if using Auth context
-        const response = await getCurrentlyReadingBooks(token);
+        const response = await getBooksByStatus(token, 'currently-reading');
         setCurrentlyReadingBooks(response.data);
       } catch (err) {
         setError('Error fetching currently reading books');

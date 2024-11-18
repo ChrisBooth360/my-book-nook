@@ -162,7 +162,7 @@ exports.updateDueDate = async (req, res) => {
 };
 
 // Sell or buy a book
-const updateBookStatus = async (req, res, action) => {
+const updateBookState = async (req, res, action) => {
     const { googleBookId } = req.params;
 
     try {
@@ -183,8 +183,8 @@ const updateBookStatus = async (req, res, action) => {
     }
 };
 
-exports.sellBook = (req, res) => updateBookStatus(req, res, 'sell');
-exports.buyBook = (req, res) => updateBookStatus(req, res, 'buy');
+exports.sellBook = (req, res) => updateBookState(req, res, 'sell');
+exports.buyBook = (req, res) => updateBookState(req, res, 'buy');
 
 // Clear location history
 exports.clearLocationHistory = async (req, res) => {

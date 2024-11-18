@@ -19,6 +19,6 @@ router.put('/:googleBookId/sell', authMiddleware, bookLocationController.sellBoo
 router.put('/:googleBookId/buy', authMiddleware, bookLocationController.buyBook);
 
 // Clear location history
-router.delete('/:googleBookId/clear-history', authMiddleware, bookLocationController.clearLocationHistory)
+router.delete('/:googleBookId/clear-history', authMiddleware, bookLocationController.clearLocationHistory);
 
 module.exports = router;
