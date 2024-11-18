@@ -18,7 +18,7 @@ const ProgressBar = ({ progress, googleBookId }) => {
         setLoading(true);
         const token = localStorage.getItem('token');
         try {
-        await updateProgress(token, googleBookId, newProgress); // Update backend
+        await updateProgress(token, googleBookId, newProgress);
         console.log(`Updated progress for book ${googleBookId} to ${newProgress}`);
         setDisplayedProgress(newProgress); // Only update displayed progress on submit
         } catch (error) {

@@ -3,7 +3,9 @@ const Book = require('../models/Book');
 
 // Helper to fetch user and check existence
 const getUserById = async (userId) => {
-    const user = await User.findById(userId).populate('books.bookId');
+    const user = await User.findById(userId)
+        .populate('books.bookId')
+        .populate('books.locationId')
     if (!user) throw new Error('User not found');
     return user;
 };
@@ -34,11 +36,11 @@ exports.getUserBooks = async (req, res) => {
 
         const userBooksWithDetails = user.books.map(userBook => ({
             bookId: userBook.bookId,
+            locationId: userBook.locationId,
             status: userBook.status,
             progress: userBook.progress,
             review: userBook.review,
             rating: userBook.rating,
-            location: userBook.location,
             addedDate: userBook.addedDate.toISOString()
         }));
 
@@ -88,11 +90,11 @@ exports.getBooksByStatus = async (req, res) => {
             .filter(book => book.status === normalizedStatus)
             .map(userBook => ({
                 bookId: userBook.bookId,
+                locationId: userBook.locationId,
                 status: userBook.status,
                 progress: userBook.progress,
                 review: userBook.review,
                 rating: userBook.rating,
-                location: userBook.location,
                 addedDate: userBook.addedDate.toISOString()
             }));
 
@@ -110,12 +112,26 @@ const updateUserBookAttribute = async (req, res, attribute, valueCallback) => {
     const { googleBookId } = req.params;
 
     try {
+        // Fetch book and user information
         const bookData = await getBookByGoogleId(googleBookId);
         const user = await getUserById(req.user.id);
         const book = findUserBook(user, bookData.googleBookId);
 
+        if (!book) {
+            throw new Error('Book not found in user collection.');
+        }
+
         // Update the attribute dynamically
-        book[attribute] = valueCallback ? valueCallback(req.body) : req.body[attribute];
+        if (valueCallback) {
+            valueCallback(book, req.body); // Pass `book` and `req.body` to the callback
+        } else {
+            const newValue = req.body[attribute];
+            if (newValue === undefined) {
+                throw new Error(`${attribute} is required.`);
+            }
+            book[attribute] = newValue;
+        }
+
         await user.save();
 
         sendResponse(res, 200, { message: `Book ${attribute} updated successfully`, book });
@@ -124,16 +140,25 @@ const updateUserBookAttribute = async (req, res, attribute, valueCallback) => {
     }
 };
 
+
 // Specific attribute updates
 exports.updateBookStatus = (req, res) => updateUserBookAttribute(req, res, 'status');
 exports.updateProgress = (req, res) => 
-    updateUserBookAttribute(req, res, 'progress', (book, { progress }) => {
+    updateUserBookAttribute(req, res, 'progress', (book, body) => {
+        const { progress } = body;
+
         if (typeof progress !== 'number') {
             throw new Error('Progress must be a number.');
         }
+
         book.progress = progress;
-        if (progress === 100) book.status = 'read';
+
+        // Automatically update the status if progress is 100%
+        if (progress === 100) {
+            book.status = 'read';
+        }
     });
+
 exports.updateReview = (req, res) => updateUserBookAttribute(req, res, 'review');
 exports.updateRating = (req, res) => updateUserBookAttribute(req, res, 'rating');
 

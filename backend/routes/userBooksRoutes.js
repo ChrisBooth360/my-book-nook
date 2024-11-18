@@ -15,6 +15,6 @@ router.put('/progress/:googleBookId', authMiddleware, userBooksController.update
 router.put('/review/:googleBookId', authMiddleware, userBooksController.updateReview);
 router.put('/rating/:googleBookId', authMiddleware, userBooksController.updateRating);
 router.delete('/remove/:googleBookId', authMiddleware, userBooksController.removeBook);
-router.put('/review/remove/:googleBookId', authMiddleware, userBooksController.removeReview);
+router.delete('/review/remove/:googleBookId', authMiddleware, userBooksController.removeReview);
 
 module.exports = router;
