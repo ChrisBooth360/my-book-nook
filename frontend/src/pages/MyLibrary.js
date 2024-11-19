@@ -73,7 +73,7 @@ const MyLibrary = () => {
           rating: book.rating,
           review: book.review,
           progress: book.progress,
-          location: book.location
+          locationId: book.locationId
         }));
 
         setBooks(libraryBooks);
