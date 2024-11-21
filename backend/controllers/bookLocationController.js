@@ -25,33 +25,48 @@ const handleError = (res, error, defaultMessage = 'An error occurred') => {
 
 // Lend a book
 exports.lendBook = async (req, res) => {
-    const { person } = req.body;
+    const { person, dateLent, dateDue } = req.body;
     const { googleBookId } = req.params;
 
     try {
         // Fetch the location of the book for the current user
         const location = await findLocation(req.user.id, googleBookId);
 
+        if (!location) {
+            return res.status(404).json({ message: 'Book location not found.' });
+        }
+
         // Ensure the book is on the shelf before lending it
         if (!location.onShelf) {
             return res.status(400).json({ message: 'Book is not on the shelf and cannot be lent.' });
         }
 
+        // Prepare lending details
+        const lentDetails = {
+            person,
+            dateLent: dateLent ? new Date(dateLent) : new Date(),
+            dateDue: dateDue ? newDate(dateDue) : null
+        };
+
         // Update the location to reflect the lending details
-        location.onShelf = false;  // Mark as not on the shelf
-        location.lent = { person, dateLent: new Date() };
-        location.history.push({ action: 'lent', person, date: new Date() });
+        location.onShelf = false;
+        location.lent = lentDetails;
+        location.history.push({ action: 'lent', person, date: lentDetails.dateLent });
 
         // Save the updated location
         await location.save();
 
         // Return the success response
-        res.json({ message: 'Book lent successfully', location });
+        res.status(200).json({
+            message: 'Book lent successfully',
+            location,
+        });
     } catch (error) {
         // Handle any errors that occurred during the lending process
         handleError(res, error, 'Error lending book');
     }
 };
+
 
 // Return a lent book
 exports.returnLentBook = async (req, res) => {
@@ -74,7 +89,7 @@ exports.returnLentBook = async (req, res) => {
 
         // Mark the book as returned
         location.onShelf = true;  // Mark it back on the shelf
-        location.lent = null;  // Reset the lent info (clears lent data)
+        location.lent = { person: null, dateDue: null, dateLent: null };  // Reset the lent info (clears lent data)
 
         // Save the updated location document
         await location.save();
@@ -86,25 +101,46 @@ exports.returnLentBook = async (req, res) => {
     }
 };
 
-
 // Borrow a book
 exports.markBorrowedBook = async (req, res) => {
-    const { person } = req.body;
+    const { person, dateBorrowed, dateDue } = req.body;
     const { googleBookId } = req.params;
 
     try {
+        // Fetch the location of the book for the current user
         const location = await findLocation(req.user.id, googleBookId);
 
-        // Save the updated location document
+        if (!location) {
+            return res.status(404).json({ message: 'Book location not found.' });
+        }
+
+        // Ensure the book is on the shelf before lending it
+        if (!location.onShelf) {
+            return res.status(400).json({ message: 'Book is not on the shelf and cannot be lent.' });
+        }
+
+        // Prepare lending details
+        const borrowedDetails = {
+            person,
+            dateBorrowed: dateBorrowed ? new Date(dateBorrowed) : new Date(),
+            dateDue: dateDue ? newDate(dateDue) : null
+        };
+
+        // Update the location to reflect the lending details
+        location.onShelf = false;
+        location.borrowed = borrowedDetails;
+        location.history.push({ action: 'borrowed', person, date: lentDetails.dateLent });
+
+        // Save the updated location
         await location.save();
 
-        location.onShelf = true;
-        location.borrowed = { person, dateBorrowed: new Date() };
-        location.history.push({ action: 'borrowed', person, date: new Date() });
-
-        await location.save();
-        res.json({ message: 'Book borrowed successfully', location });
+        // Return the success response
+        res.status(200).json({
+            message: 'Book borrowed successfully',
+            location,
+        });
     } catch (error) {
+        // Handle any errors that occurred during the lending process
         handleError(res, error, 'Error borrowing book');
     }
 };
@@ -131,7 +167,7 @@ exports.returnBorrowedBook = async (req, res) => {
 
         // Mark the book as returned
         location.onShelf = false;  // Mark it back on the shelf
-        location.borrowed = null;  // Reset the borrowed info (clears borrowed data)
+        location.lent = { person: null, dateDue: null, dateBorrowed: null };  // Reset the borrowed info (clears borrowed data)
 
         await location.save();
         res.json({ message: 'Book returned successfully', location });
