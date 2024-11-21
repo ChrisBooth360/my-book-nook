@@ -159,9 +159,9 @@ export const removeReview = async (token, googleBookId) => {
 }
 
 // bookLocationRoutes
-export const lendBook = async (token, googleBookId, person) => {
+export const lendBook = async (token, googleBookId, person, dateLent, dateDue) => {
   return axios.put(`${API_URL}/book-location/${googleBookId}/lend`,
-    { person }, {
+    { person, dateLent, dateDue }, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -169,7 +169,7 @@ export const lendBook = async (token, googleBookId, person) => {
 }
 
 export const returnLentBook = async (token, googleBookId) => {
-  return axios.put(`${API_URL}/book-location/${googleBookId}/lend/return`,
+  return axios.put(`${API_URL}/book-location/${googleBookId}/lend/return`, {},
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -177,9 +177,9 @@ export const returnLentBook = async (token, googleBookId) => {
     })
 }
 
-export const markBorrowedBook = async (token, googleBookId, person) => {
+export const markBorrowedBook = async (token, googleBookId, person, dateBorrowed, dateDue) => {
   return axios.put(`${API_URL}/book-location/${googleBookId}/borrow`,
-    { person }, {
+    { person, dateBorrowed, dateDue }, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -187,7 +187,7 @@ export const markBorrowedBook = async (token, googleBookId, person) => {
 }
 
 export const returnBorrowedBook = async (token, googleBookId) => {
-  return axios.put(`${API_URL}/book-location/${googleBookId}/borrow/return`,
+  return axios.put(`${API_URL}/book-location/${googleBookId}/lend/return`, {},
     {
       headers: {
         Authorization: `Bearer ${token}`,

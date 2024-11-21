@@ -5,69 +5,199 @@ import {
   returnLentBook,
   returnBorrowedBook,
   sellBook,
-  removeBookFromShelf,
+  buyBook,
 } from '../services/api';
 
 const BookLocation = ({ book, setStatusMessage, googleBookId }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [selectedAction, setSelectedAction] = useState(null); // 'lend', 'borrow', 'return', 'sell', 'remove'
-  const [formData, setFormData] = useState({ person: '', dueDate: '' });
+  const [selectedTab, setSelectedTab] = useState('lend'); // Default tab
+  const [formData, setFormData] = useState({
+    person: '',
+    dateLent: getToday(),
+    dateBorrowed: getToday(),
+    dateDue: '',
+  });
   const token = localStorage.getItem('token');
 
+  // Utility function for today's date
+  function getToday() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  // Handles API actions based on the selected tab
   const handleAction = async () => {
     try {
-      if (selectedAction === 'lend') {
-        await lendBook(token, googleBookId, formData.person);
-      } else if (selectedAction === 'borrow') {
-        await markBorrowedBook(token, googleBookId, formData.person);
-      } else if (selectedAction === 'return') {
-        if (book.locationId?.lent) {
+      let successMessage = '';
+
+      if (selectedTab === 'lend') {
+        if (book.locationId?.lent.person) {
           await returnLentBook(token, googleBookId);
-        } else if (book.locationId?.borrowed) {
-          await returnBorrowedBook(token, googleBookId);
+          successMessage = 'Book returned successfully';
+        } else {
+          await lendBook(token, googleBookId, formData.person, formData.dateLent);
+          successMessage = 'Book lent successfully';
         }
-      } else if (selectedAction === 'sell') {
-        await sellBook(token, googleBookId);
-      } else if (selectedAction === 'remove') {
-        await removeBookFromShelf(token, googleBookId);
+      } else if (selectedTab === 'borrow') {
+        if (book.locationId?.borrowed.person) {
+          await returnBorrowedBook(token, googleBookId);
+          successMessage = 'Book returned successfully';
+        } else {
+          await markBorrowedBook(token, googleBookId, formData.person, formData.dateBorrowed);
+          successMessage = 'Book borrowed successfully';
+        }
+      } else if (selectedTab === 'sell') {
+        if (book.locationId?.onShelf && !book.locationId?.borrowed) {
+          await sellBook(token, googleBookId);
+          successMessage = 'Book sold successfully';
+        } else {
+          await buyBook(token, googleBookId);
+          successMessage = 'Book bought successfully';
+        }
       }
 
-      setStatusMessage((prev) => ({
-        ...prev,
-        [googleBookId]: `${
-          selectedAction === 'sell'
-            ? 'Book marked as sold'
-            : selectedAction === 'lend'
-            ? 'Lent successfully'
-            : selectedAction === 'borrow'
-            ? 'Marked as borrowed'
-            : selectedAction === 'return'
-            ? 'Book returned successfully'
-            : 'Book removed from shelf'
-        }`,
-      }));
-      setModalVisible(false);
-      setFormData({ person: '', dueDate: '' });
+      setStatusMessage((prev) => ({ ...prev, [googleBookId]: successMessage }));
+      closeModal();
     } catch (error) {
       console.error('Error updating book location:', error.message);
+      setStatusMessage((prev) => ({
+        ...prev,
+        [googleBookId]: 'An error occurred. Please try again.',
+      }));
     }
   };
 
-  const locationStatus = book.locationId?.onShelf
-    ? 'On Shelf'
-    : book.locationId?.lent
-    ? `Lent to ${book.locationId.lent.person}`
-    : book.locationId?.borrowed
-    ? `Borrowed from ${book.locationId.borrowed.person}`
-    : 'Unknown';
+  // Handles closing the modal and resetting form data
+  const closeModal = () => {
+    setModalVisible(false);
+    setFormData({
+      person: '',
+      dateLent: getToday(),
+      dateBorrowed: getToday(),
+      dateDue: '',
+    });
+  };
+
+  // Renders form inputs based on the tab
+  const renderForm = (labelText) => (
+    <form
+      className="action-form"
+      onSubmit={(e) => {
+        e.preventDefault(); // Prevent form submission
+        handleAction();
+      }}
+    >
+      <label className="action-form-top-row">
+        <span>{labelText}</span>
+        <input
+          type="text"
+          placeholder="e.g. John Doe"
+          value={formData.person}
+          onChange={(e) => setFormData({ ...formData, person: e.target.value })}
+          required
+        />
+      </label>
+      <div className="action-form-bottom-row">
+        <label className="action-form-bottom-row-left">
+          <span>{labelText === 'Lend to' ? 'Date Lent' : 'Date Borrowed'}</span>
+          <input
+            type="date"
+            value={
+              labelText === 'Lend to'
+                ? formData.dateLent
+                : formData.dateBorrowed
+            }
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                [labelText === 'Lend to' ? 'dateLent' : 'dateBorrowed']: e.target.value,
+              })
+            }
+          />
+        </label>
+        <label className="action-form-bottom-row-right">
+          <span>Due Date (Optional)</span>
+          <input
+            type="date"
+            value={formData.dateDue}
+            onChange={(e) =>
+              setFormData({ ...formData, dateDue: e.target.value })
+            }
+          />
+        </label>
+      </div>
+      <div className="action-buttons">
+        <button type="submit" className="submit-btn">
+          Submit
+        </button>
+        <button
+          type="button"
+          className="cancel-btn"
+          onClick={closeModal}
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+
+  // Renders modal content based on the selected tab
+  const renderContent = () => {
+    if (selectedTab === 'lend') {
+      if (book.locationId?.lent.person) {
+        return renderReturnContent('Lent', book.locationId.lent.person);
+      }
+      return renderForm('Lend to');
+    }
+    if (selectedTab === 'borrow') {
+      if (book.locationId?.borrowed.person) {
+        return renderReturnContent('Borrowed', book.locationId.borrowed.person);
+      }
+      return renderForm('Borrow from');
+    }
+    if (selectedTab === 'sell') {
+      return book.locationId?.onShelf && !book.locationId?.borrowed
+        ? renderSellContent('Sell')
+        : renderSellContent('Buy');
+    }
+  };
+
+  const renderReturnContent = (action, person) => (
+    <div>
+      <p>
+        This book is currently {action.toLowerCase()} by/from{' '}
+        <strong>{person}</strong>. Return this book?
+      </p>
+      <div className="action-buttons">
+        <button className="submit-btn" onClick={handleAction}>
+          Return
+        </button>
+        <button className="cancel-btn" onClick={closeModal}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderSellContent = (action) => (
+    <div>
+      <p>
+        {action === 'Sell'
+          ? 'If you sell this book, it will be removed from your shelf, but all information will be retained.'
+          : 'This book is not on your shelf. Buy it back to add it to your collection.'}
+      </p>
+      <div className="action-buttons">
+        <button className="submit-btn" onClick={handleAction}>
+          {action}
+        </button>
+        <button className="cancel-btn" onClick={closeModal}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="book-location">
-      {/* Inline Location Status */}
-      <p className="status-badge">
-        {locationStatus}
-      </p>
-
       {/* Action Button */}
       <button className="btn action-btn" onClick={() => setModalVisible(true)}>
         Update Location
@@ -77,44 +207,20 @@ const BookLocation = ({ book, setStatusMessage, googleBookId }) => {
       {modalVisible && (
         <div className="overlay">
           <div className="modal">
-            <h3>Update Book Location</h3>
-            <div className="action-selector">
-              <button onClick={() => setSelectedAction('lend')}>Lend</button>
-              <button onClick={() => setSelectedAction('borrow')}>Borrow</button>
-              <button onClick={() => setSelectedAction('return')}>Return</button>
-              <button onClick={() => setSelectedAction('sell')}>Sell</button>
-              <button onClick={() => setSelectedAction('remove')}>Remove</button>
+            {/* Tabs */}
+            <div className="folder-tabs">
+              {['lend', 'borrow', 'sell'].map((tab) => (
+                <div
+                  key={tab}
+                  className={`folder-tab ${selectedTab === tab ? 'active' : ''}`}
+                  onClick={() => setSelectedTab(tab)}
+                >
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                </div>
+              ))}
             </div>
-
-            {/* Dynamic Form */}
-            {selectedAction && selectedAction !== 'sell' && selectedAction !== 'remove' && selectedAction !== 'return' && (
-              <form>
-                <label>
-                  {selectedAction === 'lend' ? 'Lend to' : 'Borrow from'}
-                  <input
-                    type="text"
-                    value={formData.person}
-                    onChange={(e) => setFormData({ ...formData, person: e.target.value })}
-                    required
-                  />
-                </label>
-                <label>
-                  Return Date (Optional)
-                  <input
-                    type="date"
-                    value={formData.dueDate}
-                    onChange={(e) => setFormData({ ...formData, dueDate: e.target.value })}
-                  />
-                </label>
-              </form>
-            )}
-
-            {(selectedAction === 'sell' || selectedAction === 'remove' || selectedAction === 'return') && (
-              <p>Are you sure you want to {selectedAction} this book?</p>
-            )}
-
-            <button onClick={handleAction}>Submit</button>
-            <button onClick={() => setModalVisible(false)}>Cancel</button>
+            {/* Content */}
+            <div className="content-section">{renderContent()}</div>
           </div>
         </div>
       )}
