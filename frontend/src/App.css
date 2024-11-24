@@ -61,6 +61,11 @@ button:hover {
   color: #FFFBFC;
 }
 
+input::placeholder {
+  color: gray; /* Sets the color of the placeholder text */
+  opacity: 0.7; /* Adjusts the opacity of the placeholder text */
+}
+
 .container {
   max-width: 800px;
   margin: 0 auto;
@@ -579,7 +584,7 @@ button:hover {
 
 /* ================= Status Message Styling ================= */
 .book-card .status-message {
-  text-align: left; /* Aligns the status message to the left with the buttons */
+  text-align: right; /* Aligns the status message to the left with the buttons */
   margin-bottom: 10px;
   color: #D56F00;
   font-weight: bold;
@@ -1029,7 +1034,7 @@ button:hover {
 .action-form-bottom-row-right {
   display: flex;
   flex-direction: column; /* Stack label and input vertically */
-  width: 48%; /* Half the width of the top row with some space in between */
+  width: 46%; /* Half the width of the top row with some space in between */
 }
 
 .action-form-bottom-row-left span,
@@ -1052,9 +1057,12 @@ button:hover {
 
 /* Confirmation Message */
 .confirmation-message {
+  position: absolute;
+  top: 10px; /* Adjust as needed to move the message vertically */
+  right: 10px; /* Adjust as needed to move the message horizontally */
+  color: #D56F00;
+  font-weight: bold;
   font-size: 0.9rem;
-  color: #333;
-  margin-top: 20px;
 }
 
 /* Action Buttons */
@@ -1087,3 +1095,43 @@ button:hover {
 .cancel-btn:hover {
   background-color: #BD3C3C;
 }
+
+/* Update Action Form Styling */
+.action-form-update {
+  display: flex; /* Arrange input and button in a row */
+  align-items: flex-end; /* Vertically center the elements */
+  gap: 10px; /* Add space between elements */
+  margin-top: 20px; /* Add spacing above */
+  height: 40px;
+  padding-top: 20px;
+}
+
+.action-form-update-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.action-form-update-field span {
+  font-size: 0.9rem; /* Label font size */
+  color: #191919; /* Label color */
+  margin-bottom: 5px; /* Space below the label */
+}
+
+.action-form-update-field input {
+  padding: 8px; /* Add padding to the input */
+  font-size: 0.9rem; /* Input font size */
+  border: 1px solid #ccc; /* Input border */
+  border-radius: 4px; /* Rounded corners */
+  height: 100%;
+  font-family: 'Open Sans', sans-serif;
+}
+
+/* Button Styling */
+.update-btn {
+  padding: 8px 12px;
+  border-radius: 4px; /* Rounded corners */
+  cursor: pointer;
+  font-size: 0.9rem;
+  height: 100%;
+}
+
