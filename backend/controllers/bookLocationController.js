@@ -129,7 +129,7 @@ exports.markBorrowedBook = async (req, res) => {
         // Update the location to reflect the lending details
         location.onShelf = false;
         location.borrowed = borrowedDetails;
-        location.history.push({ action: 'borrowed', person, date: lentDetails.dateLent });
+        location.history.push({ action: 'borrowed', person, date: borrowedDetails.dateBorrowed });
 
         // Save the updated location
         await location.save();
@@ -152,10 +152,6 @@ exports.returnBorrowedBook = async (req, res) => {
     try {
         const location = await findLocation(req.user.id, googleBookId);
 
-        // Ensure the book is currently on your shelf
-        if (!location.onShelf) {
-            return res.status(400).json({ message: 'Book is not on your shelf' });
-        }
         if (!location.borrowed.person) throw new Error('Book is not currently borrowed');
 
         // Push the 'returned' action to the history
@@ -166,7 +162,7 @@ exports.returnBorrowedBook = async (req, res) => {
         });
 
         // Mark the book as returned
-        location.onShelf = false;  // Mark it back on the shelf
+        location.onShelf = true;  // Mark it back on the shelf
         location.lent = { person: null, dateDue: null, dateBorrowed: null };  // Reset the borrowed info (clears borrowed data)
 
         await location.save();

@@ -1,3 +1,4 @@
+// src/components/BookCard.js
 import React, { useState, useEffect } from 'react';
 import placeholderCover from '../assets/book-nook-placeholder.png';
 import BookCardButtons from './BookCardButtons';
@@ -178,6 +179,7 @@ const BookCard = ({
             <>
               <BookLocation
                 book={normalizedBook}
+                setBooks={setBooks}
                 setStatusMessage={setStatusMessage}
                 googleBookId={normalizedBook.googleBookId}
               />
