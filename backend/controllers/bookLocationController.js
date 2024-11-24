@@ -36,20 +36,19 @@ exports.lendBook = async (req, res) => {
             return res.status(404).json({ message: 'Book location not found.' });
         }
 
-        // Ensure the book is on the shelf before lending it
-        if (!location.onShelf) {
-            return res.status(400).json({ message: 'Book is not on the shelf and cannot be lent.' });
+        // Ensure the book hasn't already been lent out.
+        if (location.lent?.person) {
+            return res.status(400).json({ message: 'Book already lent out.' });
         }
 
         // Prepare lending details
         const lentDetails = {
             person,
             dateLent: dateLent ? new Date(dateLent) : new Date(),
-            dateDue: dateDue ? newDate(dateDue) : null
+            dateDue: dateDue ? new Date(dateDue) : null
         };
 
         // Update the location to reflect the lending details
-        location.onShelf = false;
         location.lent = lentDetails;
         location.history.push({ action: 'lent', person, date: lentDetails.dateLent });
 
@@ -76,8 +75,8 @@ exports.returnLentBook = async (req, res) => {
         const location = await findLocation(req.user.id, googleBookId);
 
         // Ensure the book is currently lent out
-        if (location.onShelf) {
-            return res.status(400).json({ message: 'Book is already on the shelf' });
+        if (!location.lent?.person) {
+            return res.status(400).json({ message: 'Book is not lent out.' });
         }
 
         // Push the 'returned' action to the history
@@ -88,7 +87,6 @@ exports.returnLentBook = async (req, res) => {
         });
 
         // Mark the book as returned
-        location.onShelf = true;  // Mark it back on the shelf
         location.lent = { person: null, dateDue: null, dateLent: null };  // Reset the lent info (clears lent data)
 
         // Save the updated location document
@@ -115,19 +113,18 @@ exports.markBorrowedBook = async (req, res) => {
         }
 
         // Ensure the book is on the shelf before lending it
-        if (!location.onShelf) {
-            return res.status(400).json({ message: 'Book is not on the shelf and cannot be lent.' });
+        if (location.borrowed?.person) {
+            return res.status(400).json({ message: 'Book is already borrowed.' });
         }
 
         // Prepare lending details
         const borrowedDetails = {
             person,
             dateBorrowed: dateBorrowed ? new Date(dateBorrowed) : new Date(),
-            dateDue: dateDue ? newDate(dateDue) : null
+            dateDue: dateDue ? new Date(dateDue) : null
         };
 
-        // Update the location to reflect the lending details
-        location.onShelf = false;
+        // Update the location to reflect the borrowed details
         location.borrowed = borrowedDetails;
         location.history.push({ action: 'borrowed', person, date: borrowedDetails.dateBorrowed });
 
@@ -162,8 +159,7 @@ exports.returnBorrowedBook = async (req, res) => {
         });
 
         // Mark the book as returned
-        location.onShelf = true;  // Mark it back on the shelf
-        location.lent = { person: null, dateDue: null, dateBorrowed: null };  // Reset the borrowed info (clears borrowed data)
+        location.borrowed = { person: null, dateDue: null, dateBorrowed: null };  // Reset the borrowed info (clears borrowed data)
 
         await location.save();
         res.json({ message: 'Book returned successfully', location });

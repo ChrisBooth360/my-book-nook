@@ -1,13 +1,13 @@
-// src/components/BookLocation.js
 import React, { useState } from 'react';
 import {
   lendBook,
   markBorrowedBook,
   returnLentBook,
   returnBorrowedBook,
+  updateDueDate,
 } from '../services/api';
 
-const BookLocation = ({ book, setBooks, setStatusMessage, googleBookId }) => {
+const BookLocation = ({ book, setBooks, googleBookId }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState('lend');
   const [formData, setFormData] = useState({
@@ -16,6 +16,7 @@ const BookLocation = ({ book, setBooks, setStatusMessage, googleBookId }) => {
     dateBorrowed: getToday(),
     dateDue: '',
   });
+  const [localStatusMessage, setLocalStatusMessage] = useState('');
   const token = localStorage.getItem('token');
 
   function getToday() {
@@ -34,18 +35,22 @@ const BookLocation = ({ book, setBooks, setStatusMessage, googleBookId }) => {
   const closeModal = () => {
     setModalVisible(false);
     resetForm();
+    setLocalStatusMessage('');
   };
 
   const handleAction = async () => {
     try {
       let successMessage = '';
       let updatedBook = { ...book }; // Clone the current book data
-  
+
       if (selectedTab === 'lend') {
         if (!book.locationId?.lent?.person) {
           await lendBook(token, googleBookId, formData.person, formData.dateLent, formData.dateDue);
           successMessage = 'Book lent successfully.';
-          updatedBook.locationId = { ...updatedBook.locationId, lent: { person: formData.person, dateLent: formData.dateLent } };
+          updatedBook.locationId = {
+            ...updatedBook.locationId,
+            lent: { person: formData.person, dateLent: formData.dateLent, dateDue: formData.dateDue },
+          };
         } else {
           await returnLentBook(token, googleBookId);
           successMessage = 'Book returned successfully.';
@@ -57,28 +62,61 @@ const BookLocation = ({ book, setBooks, setStatusMessage, googleBookId }) => {
           successMessage = 'Book returned successfully.';
           updatedBook.locationId.borrowed = null;
         } else {
-          await markBorrowedBook(token, googleBookId, formData.person, formData.dateBorrowed);
+          await markBorrowedBook(token, googleBookId, formData.person, formData.dateBorrowed, formData.dateDue);
           successMessage = 'Book borrowed successfully.';
-          updatedBook.locationId = { ...updatedBook.locationId, borrowed: { person: formData.person, dateBorrowed: formData.dateBorrowed } };
+          updatedBook.locationId = {
+            ...updatedBook.locationId,
+            borrowed: { person: formData.person, dateBorrowed: formData.dateBorrowed, dateDue: formData.dateDue },
+          };
         }
       }
-  
-      setStatusMessage((prev) => ({ ...prev, [googleBookId]: successMessage }));
+
+      setLocalStatusMessage(successMessage);
       setBooks((prevBooks) =>
         prevBooks.map((b) =>
           b.googleBookId === googleBookId ? updatedBook : b
         )
       );
-      closeModal();
     } catch (error) {
       console.error('Error updating book location:', error.message);
-      setStatusMessage((prev) => ({
-        ...prev,
-        [googleBookId]: 'An error occurred. Please try again.',
-      }));
+      setLocalStatusMessage('An error occurred. Please try again.');
     }
   };
-  
+
+  const handleDueDateUpdate = async () => {
+    try {
+      await updateDueDate(
+        token,
+        googleBookId,
+        formData.dateDue,
+        selectedTab === 'lend' ? 'lent' : 'borrowed'
+      );
+      setLocalStatusMessage('Due date updated successfully.');
+      setBooks((prevBooks) =>
+        prevBooks.map((b) => {
+          if (b.googleBookId === googleBookId) {
+            const updatedLocation = { ...b.locationId };
+            if (selectedTab === 'lend' && updatedLocation.lent) {
+              updatedLocation.lent.dateDue = formData.dateDue;
+            } else if (selectedTab === 'borrow' && updatedLocation.borrowed) {
+              updatedLocation.borrowed.dateDue = formData.dateDue;
+            }
+            return { ...b, locationId: updatedLocation };
+          }
+          return b;
+        })
+      );
+    } catch (error) {
+      console.error('Error updating due date:', error.message);
+      setLocalStatusMessage('An error occurred while updating the due date.');
+    }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return ''; // Handle empty date cases
+    const options = { day: 'numeric', month: 'long', year: 'numeric' }; // dd MMMM yyyy
+    return new Date(dateString).toLocaleDateString('en-UK', options);
+  };
 
   const renderForm = (labelText, dateField) => (
     <form
@@ -100,7 +138,7 @@ const BookLocation = ({ book, setBooks, setStatusMessage, googleBookId }) => {
       </label>
       <div className="action-form-bottom-row">
         <label className="action-form-bottom-row-left">
-          <span>{dateField}</span>
+          <span>{dateField} (Optional)</span>
           <input
             type="date"
             value={formData[dateField === 'Date Lent' ? 'dateLent' : 'dateBorrowed']}
@@ -112,16 +150,14 @@ const BookLocation = ({ book, setBooks, setStatusMessage, googleBookId }) => {
             }
           />
         </label>
-        {selectedTab === 'lend' && (
-          <label className="action-form-bottom-row-right">
-            <span>Due Date (Optional)</span>
-            <input
-              type="date"
-              value={formData.dateDue}
-              onChange={(e) => setFormData({ ...formData, dateDue: e.target.value })}
-            />
-          </label>
-        )}
+        <label className="action-form-bottom-row-right">
+          <span>Due Date (Optional)</span>
+          <input
+            type="date"
+            value={formData.dateDue}
+            onChange={(e) => setFormData({ ...formData, dateDue: e.target.value })}
+          />
+        </label>
       </div>
       <div className="action-buttons">
         <button type="submit" className="submit-btn">Submit</button>
@@ -130,11 +166,27 @@ const BookLocation = ({ book, setBooks, setStatusMessage, googleBookId }) => {
     </form>
   );
 
-  const renderReturnContent = (action, person) => (
+  const renderReturnContent = (action, person, dateDue) => (
     <div>
+      {action === 'Lent' ?
       <p>
-        This book is currently {action.toLowerCase()} by/from <strong>{person}</strong>. Return this book?
-      </p>
+        You have lent this book to <strong>{person}</strong>.<br/> 
+        {dateDue && <span>They should return it by  <strong>{formatDate(dateDue)}</strong>.</span>}
+      </p> : <p>
+        You have borrowed this book from <strong>{person}</strong>.<br/>
+        {dateDue && <span>Return this book by <strong>{formatDate(dateDue)}</strong>.</span>}
+      </p> }
+      <div className="action-form-update">
+        <label className="action-form-update-field">
+          <span>Update Due Date</span>
+          <input
+            type="date"
+            value={formData.dateDue}
+            onChange={(e) => setFormData({ ...formData, dateDue: e.target.value })}
+          />  
+        </label>
+        <button className="update-btn" onClick={handleDueDateUpdate}>Update</button>
+      </div>
       <div className="action-buttons">
         <button className="submit-btn" onClick={handleAction}>Return</button>
         <button className="cancel-btn" onClick={closeModal}>Cancel</button>
@@ -145,12 +197,12 @@ const BookLocation = ({ book, setBooks, setStatusMessage, googleBookId }) => {
   const renderContent = () => {
     if (selectedTab === 'lend') {
       return book.locationId?.lent?.person
-        ? renderReturnContent('Lent', book.locationId.lent.person)
+        ? renderReturnContent('Lent', book.locationId.lent.person, book.locationId.lent.dateDue)
         : renderForm('Lend to', 'Date Lent');
     }
     if (selectedTab === 'borrow') {
       return book.locationId?.borrowed?.person
-        ? renderReturnContent('Borrowed', book.locationId.borrowed.person)
+        ? renderReturnContent('Borrowed', book.locationId.borrowed.person, book.locationId.borrowed.dateDue)
         : renderForm('Borrow from', 'Date Borrowed');
     }
   };
@@ -174,6 +226,7 @@ const BookLocation = ({ book, setBooks, setStatusMessage, googleBookId }) => {
                 </div>
               ))}
             </div>
+            {localStatusMessage && <div className="confirmation-message">{localStatusMessage}</div>}
             <div className="content-section">{renderContent()}</div>
           </div>
         </div>

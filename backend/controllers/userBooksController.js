@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Book = require('../models/Book');
+const Location = require('../models/Location');
 
 // Helper to fetch user and check existence
 const getUserById = async (userId) => {
@@ -167,15 +168,35 @@ exports.removeBook = async (req, res) => {
     const { googleBookId } = req.params;
 
     try {
+        // Get the user
         const user = await getUserById(req.user.id);
+
+        // Find the book in the user's collection
         const bookIndex = user.books.findIndex(book => book.bookId.googleBookId === googleBookId);
 
         if (bookIndex === -1) throw new Error('Book not found in your collection');
 
+        // Extract the bookId before removing the book
+        const bookId = user.books[bookIndex].bookId._id;
+
+        // Remove the book from the user's collection
         user.books.splice(bookIndex, 1);
         await user.save();
 
-        sendResponse(res, 200, { message: 'Book removed successfully' });
+        // Delete the corresponding book location using bookId
+        const locationDeletionResult = await Location.findOneAndDelete({
+            userId: req.user.id,
+            bookId: bookId // Use bookId for location deletion
+        });
+
+        if (!locationDeletionResult) {
+            console.warn(`Book location not found for bookId: ${bookId}`);
+        }
+
+        sendResponse(res, 200, {
+            message: 'Book removed successfully',
+            locationDeleted: !!locationDeletionResult
+        });
     } catch (error) {
         sendResponse(res, 500, { message: error.message });
     }

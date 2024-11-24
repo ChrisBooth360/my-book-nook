@@ -187,7 +187,7 @@ export const markBorrowedBook = async (token, googleBookId, person, dateBorrowed
 }
 
 export const returnBorrowedBook = async (token, googleBookId) => {
-  return axios.put(`${API_URL}/book-location/${googleBookId}/lend/return`, {},
+  return axios.put(`${API_URL}/book-location/${googleBookId}/borrow/return`, {},
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -195,9 +195,9 @@ export const returnBorrowedBook = async (token, googleBookId) => {
     })
 }
 
-export const updateDueDate = async (token, googleBookId, dueDate, type) => {
+export const updateDueDate = async (token, googleBookId, dateDue, type) => {
   return axios.put(`${API_URL}/book-location/${googleBookId}/due-date`,
-    { dueDate, type }, {
+    { dateDue, type }, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
