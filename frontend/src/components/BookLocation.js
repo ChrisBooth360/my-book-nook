@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+// src/components/BookLocation.js
+import React, { useState, forwardRef, useImperativeHandle } from 'react';
 import {
   lendBook,
   markBorrowedBook,
   returnLentBook,
   returnBorrowedBook,
   updateDueDate,
+  removeBookFromShelf,
 } from '../services/api';
 
-const BookLocation = ({ book, setBooks, googleBookId }) => {
+const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessage }, ref) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedTab, setSelectedTab] = useState('lend');
   const [formData, setFormData] = useState({
@@ -18,6 +20,12 @@ const BookLocation = ({ book, setBooks, googleBookId }) => {
   });
   const [localStatusMessage, setLocalStatusMessage] = useState('');
   const token = localStorage.getItem('token');
+
+  // Expose methods to parent
+  useImperativeHandle(ref, () => ({
+    setSelectedTab,
+    setModalVisible,
+  }));
 
   function getToday() {
     return new Date().toISOString().split('T')[0];
@@ -41,7 +49,7 @@ const BookLocation = ({ book, setBooks, googleBookId }) => {
   const handleAction = async () => {
     try {
       let successMessage = '';
-      let updatedBook = { ...book }; // Clone the current book data
+      let updatedBook = { ...book };
 
       if (selectedTab === 'lend') {
         if (!book.locationId?.lent?.person) {
@@ -111,6 +119,39 @@ const BookLocation = ({ book, setBooks, googleBookId }) => {
       setLocalStatusMessage('An error occurred while updating the due date.');
     }
   };
+
+  const handleRemove = async () => {
+    try {
+      await removeBookFromShelf(token, googleBookId);
+      setBooks((prevBooks) =>
+        prevBooks.filter((b) => b.googleBookId !== googleBookId)
+      );
+      setStatusMessage((prev) => ({
+        ...prev,
+        [googleBookId]: 'Book removed from library',
+      }));
+      closeModal(); 
+    } catch (error) {
+      console.error('Error removing book:', error.message);
+      setLocalStatusMessage('Failed to remove the book. Try again later.');
+    }
+  };
+
+  const renderRemoveContent = () => (
+    <div className="remove-tab-content">
+      <p>
+        Are you sure you want to remove this book from your library?
+      </p>
+      <div className="action-buttons">
+        <button className="remove-btn" onClick={handleRemove}>
+          Yes
+        </button>
+        <button className="remove-cancel-btn" onClick={closeModal}>
+          No
+        </button>
+      </div>
+    </div>
+  );
 
   const formatDate = (dateString) => {
     if (!dateString) return ''; // Handle empty date cases
@@ -205,34 +246,45 @@ const BookLocation = ({ book, setBooks, googleBookId }) => {
         ? renderReturnContent('Borrowed', book.locationId.borrowed.person, book.locationId.borrowed.dateDue)
         : renderForm('Borrow from', 'Date Borrowed');
     }
+    if (selectedTab === 'remove') {
+      return renderRemoveContent();
+    }
   };
 
   return (
     <div className="book-location">
-      <button className="btn action-btn" onClick={() => setModalVisible(true)}>
+      <button
+        className="btn action-btn"
+        onClick={() => setModalVisible(true)}
+      >
         Update Location
       </button>
       {modalVisible && (
         <div className="overlay">
           <div className="modal">
             <div className="folder-tabs">
-              {['lend', 'borrow'].map((tab) => (
+              {['lend', 'borrow', 'remove'].map((tab) => (
                 <div
                   key={tab}
-                  className={`folder-tab ${selectedTab === tab ? 'active' : ''}`}
+                  className={`folder-tab ${
+                    selectedTab === tab ? 'active' : ''
+                  } ${tab === 'remove' ? 'remove' : ''}`}
                   onClick={() => setSelectedTab(tab)}
                 >
                   {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </div>
               ))}
             </div>
-            {localStatusMessage && <div className="confirmation-message">{localStatusMessage}</div>}
+            {localStatusMessage && (
+              <div className="confirmation-message">{localStatusMessage}</div>
+            )}
             <div className="content-section">{renderContent()}</div>
           </div>
         </div>
       )}
     </div>
   );
-};
+});
+
 
 export default BookLocation;

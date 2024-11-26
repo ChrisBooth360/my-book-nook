@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { loginUser, registerUser } from '../services/api'; // Import the register function
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
-import '../App.css'; // Custom styles
+import '../styles/App.css';
+import '../styles/HomePage.css'
 import headerLogo from '../assets/book-nook-sq-logo-slogan.png';
 
 const HomePage = ({ setIsLoggedIn }) => {

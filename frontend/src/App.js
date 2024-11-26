@@ -6,7 +6,7 @@ import ProfilePage from './pages/ProfilePage';
 import MyLibrary from './pages/MyLibrary';
 import Explore from './pages/Explore';
 import Header from './components/Header';
-import './App.css';
+import './styles/App.css';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token')); // State for login check
