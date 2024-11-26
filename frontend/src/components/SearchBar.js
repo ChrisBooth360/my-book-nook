@@ -1,6 +1,7 @@
 // src/components/SearchBar.js
 import React, { useState } from 'react';
-import '../App.css';
+import '../styles/SearchBar.css';
+import '../styles/App.css';
 
 const SearchBar = ({ onSearch, placeholder = "Search for books by title, author, or ISBN" }) => {
   const [query, setQuery] = useState('');

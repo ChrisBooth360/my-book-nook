@@ -1,0 +1,103 @@
+/* src/stlyes/App.css */
+/* ================= Global Variables ================= */
+:root {
+    /* Colors */
+    --primary-bg-color: #FAF9F6;
+    --header-bg-color: #045174;
+    --sidebar-bg-color: #001F3D;
+
+    --primary-card-bg-color: #F8DCBF;
+    --secondary-card-bg-color: #D56F00;
+    --disabled-bg-color: #DBC0A4;
+
+    --primary-button-bg: #FA9939;
+    --primary-button-hover-bg: #D56F00;
+    --secondary-button-bg: #D56F00;
+    --secondary-button-bg: #FA9939;
+    --disabled-button-bg: #DBC0A4;
+    --remove-button-bg: #D05353;
+    --remove-button-bg: #BD3C3C;
+
+    --primary-text-color: #292929;
+    --secondary-text-color: #FAF9F6;
+    --tertiary-text-color: #BDBDBD;
+    --header-text-color-dark: #001F3D;
+    --header-text-color-light: #F8DCBF;
+    --status-message-color-dark: #D56F00;
+    --status-message-color-light: #F8DCBF;
+    --error-color: #D05353;
+  
+    /* Fonts */
+    --font-family-body: 'Open Sans', sans-serif;
+    --font-family-heading: 'Montserrat', sans-serif;
+  
+    /* Sizes */
+    --font-size-small: 0.875rem;
+    --font-size-medium: 1rem;
+    --font-size-large: 1.125rem;
+    --font-size-xl: 1.5rem;
+  
+    --spacing-small: 0.5rem;
+    --spacing-medium: 1rem;
+    --spacing-large: 2rem;
+  }
+  
+  /* ================= General Styling ================= */
+  body {
+    background-color: var(--primary-bg-color);
+    font-family: var(--font-family-body);
+    color: var(--primary-text-color);
+    margin: 0;
+    padding: 0;
+  }
+  
+  h1, h2 {
+    font-family: var(--font-family-heading);
+    color: var(--header-text-color-dark);
+    margin-bottom: var(--spacing-small);
+  }
+  
+  h1 {
+    font-size: var(--font-size-xl);
+  }
+  
+  h2 {
+    font-size: var(--font-size-large)
+  }
+  
+  p {
+    font-size: var(--font-size-medium);
+    margin-bottom: var(--spacing-medium);
+  }
+  
+  /* ================= Buttons ================= */
+  button {
+    background-color: var(--primary-button-bg);
+    color: var(--secondary-text-color);
+    border: 1px solid var(--primary-button-bg);
+    padding: var(--spacing-small) var(--spacing-medium);
+    font-size: var(--font-size-medium);
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: var(--primary-button-hover-bg);
+  }
+  
+  /* ================= Utilities ================= */
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--spacing-medium);
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  

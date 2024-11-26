@@ -1,12 +1,11 @@
 // src/components/BookCard.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import placeholderCover from '../assets/book-nook-placeholder.png';
 import BookCardButtons from './BookCardButtons';
 import RatingBar from './RatingBar';
 import ProgressBar from './ProgressBar';
 import ReviewBar from './ReviewBar';
 import BookLocation from './BookLocation';
-import { removeBookFromShelf } from '../services/api';
 import DOMPurify from 'dompurify';
 
 const normalizeBookData = (book) => {
@@ -56,6 +55,9 @@ const BookCard = ({
 }) => {
   const normalizedBook = normalizeBookData(book);
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  const bookLocationRef = useRef(null);
+
 
   useEffect(() => {
     if (statusMessage[normalizedBook.googleBookId]) {
@@ -71,19 +73,15 @@ const BookCard = ({
     }
   }, [statusMessage, normalizedBook.googleBookId, setStatusMessage]);
 
-  const handleRemoveFromLibrary = async () => {
-    const token = localStorage.getItem('token');
-    try {
-      await removeBookFromShelf(token, normalizedBook.googleBookId);
-      setBooks((prevBooks) => prevBooks.filter((b) => b.googleBookId !== normalizedBook.googleBookId));
-      setStatusMessage((prev) => ({
-        ...prev,
-        [normalizedBook.googleBookId]: 'Book removed from library',
-      }));
-    } catch (error) {
-      console.error('Error removing book from library:', error.message);
+  const handleRemoveClick = () => {
+    if (bookLocationRef.current) {
+      bookLocationRef.current.setSelectedTab('remove'); // Access the ref directly
+      bookLocationRef.current.setModalVisible(true);
+    } else {
+      console.error('BookLocation ref is not available.');
     }
   };
+    
 
   const handleToggleExpand = () => setIsExpanded((prevState) => !prevState);
 
@@ -178,6 +176,7 @@ const BookCard = ({
           {normalizedBook.existsInLibrary && (
             <>
               <BookLocation
+                ref={bookLocationRef} // No need for a state update here
                 book={normalizedBook}
                 setBooks={setBooks}
                 setStatusMessage={setStatusMessage}
@@ -185,7 +184,7 @@ const BookCard = ({
               />
               <button
                 className="btn remove-from-library-btn"
-                onClick={handleRemoveFromLibrary}
+                onClick={handleRemoveClick}
               >
                 Remove
               </button>
