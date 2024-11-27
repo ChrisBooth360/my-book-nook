@@ -1,6 +1,8 @@
 // src/components/BookCardButtons.js
 import React, { useState, useEffect, useRef } from 'react';
 import { updateBookStatus, addBookToShelf } from '../services/api';
+import "../styles/BookCardButtons.css"
+import "../styles/App.css"
 
 const BookCardButtons = ({
   normalizedBook,

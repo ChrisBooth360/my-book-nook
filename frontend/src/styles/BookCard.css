@@ -1,0 +1,148 @@
+
+.book-card {
+    display: flex;
+    flex-direction: row;
+    background-color: var(--primary-card-bg-color);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0px 4px 8px var(--disabled-bg-color);
+    margin: 10px;
+    position: relative;
+    transition: max-height 0.3s ease-out, padding-bottom 0.3s ease-out;
+  }
+  
+  .book-card img {
+    width: 120px;
+    height: 180px;
+    margin-right: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    object-fit: cover;
+  }
+  
+  .book-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+  }
+  
+  .book-details h3 {
+    font-size: 1.5rem;
+    margin: 0;
+    cursor: pointer;
+  }
+  
+  .book-details p {
+    margin: 5px 0;
+    color: var(--tertiary-text-color);
+  }
+
+  .book-card.currently-reading {
+    background-color: var(--secondary-card-bg-color);
+    color: var(--secondary-text-color);
+  }
+  
+  .book-card.currently-reading p {
+    color: var(--secondary-text-color);
+  }
+  
+  .book-card.dnf {
+    background-color: #ffedda;
+  }
+  
+  .expanded-book-info {
+    margin-top: 15px;
+    font-size: var(--font-size-medium);
+  }
+
+  .expanded-book-info p {
+    color: var(--primary-text-color);
+  }
+  
+  .small-expanded-book-info p {
+    font-size: var(--font-size-small);
+    margin: 0;
+    
+  }
+  
+  .book-card.expanded {
+    transition: max-height 0.3s ease-in-out;
+  }
+  
+  .details-toggle {
+    cursor: pointer;
+    text-align: left;
+    margin-top: auto;
+  }
+
+  .details-toggle p {
+    font-size: var(--font-size-small);
+  }
+
+  /* Button Section */
+  .button-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-left: 5px;
+  }
+  
+  .status-message {
+    text-align: right;
+    margin-bottom: 10px;
+    color: var(--status-message-color-dark);
+    font-weight: bold;
+    font-size: var(--font-size-small);
+  }
+  
+  .book-card-buttons button {
+    margin-top: 5px;
+  }
+
+  .remove-from-library-btn {
+    background-color: var(--remove-button-bg);
+    border: 1px solid var(--remove-button-bg);
+    width: 100%;
+  }
+  
+  .remove-from-library-btn:hover {
+    background-color: var(--remove-button-bg-hover);
+  }
+  
+  @media (max-width: 768px) {
+    .book-card {
+      padding: 10px;
+      margin: 10px;
+    }
+  
+    .book-card img {
+      width: 90px;
+      height: 135px;
+      margin: 0 10px 10px 0;
+    }
+  
+    .button-section {
+      margin-left: 0;
+      align-items: center;
+    }
+  
+    .book-card-buttons {
+      flex-direction: row; /* Arrange buttons in a row for responsiveness */
+      gap: 10px; /* Keeps spacing consistent */
+    }
+  
+    .book-card-buttons button {
+      font-size: var(--font-size-small); /* Adjust size for small screens */
+      padding: var(--spacing-small);
+    }
+  
+    .book-details h3 {
+      font-size: 1.2rem; /* Adjust for smaller screens */
+    }
+  
+    .book-details p,
+    .expanded-book-info p {
+      font-size: var(--font-size-small); /* Adjust font size */
+    }
+  }
+  
