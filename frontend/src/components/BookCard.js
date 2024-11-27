@@ -7,6 +7,8 @@ import ProgressBar from './ProgressBar';
 import ReviewBar from './ReviewBar';
 import BookLocation from './BookLocation';
 import DOMPurify from 'dompurify';
+import '../styles/App.css'
+import '../styles/BookCard.css'
 
 const normalizeBookData = (book) => {
   const defaultImageLinks = { thumbnail: '' };
@@ -176,6 +178,7 @@ const BookCard = ({
           {normalizedBook.existsInLibrary && (
             <>
               <BookLocation
+                className="book-location-button"
                 ref={bookLocationRef} // No need for a state update here
                 book={normalizedBook}
                 setBooks={setBooks}

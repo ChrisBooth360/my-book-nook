@@ -16,11 +16,11 @@
     --secondary-button-bg: #FA9939;
     --disabled-button-bg: #DBC0A4;
     --remove-button-bg: #D05353;
-    --remove-button-bg: #BD3C3C;
+    --remove-button-bg-hover: #BD3C3C;
 
     --primary-text-color: #292929;
     --secondary-text-color: #FAF9F6;
-    --tertiary-text-color: #BDBDBD;
+    --tertiary-text-color: #777777;
     --header-text-color-dark: #001F3D;
     --header-text-color-light: #F8DCBF;
     --status-message-color-dark: #D56F00;
@@ -37,6 +37,7 @@
     --font-size-large: 1.125rem;
     --font-size-xl: 1.5rem;
   
+    --spacing-xsmall: 0.25rem;
     --spacing-small: 0.5rem;
     --spacing-medium: 1rem;
     --spacing-large: 2rem;
@@ -100,4 +101,5 @@
   .hidden {
     display: none;
   }
+
   
