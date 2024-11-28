@@ -179,7 +179,7 @@ const BookCard = ({
             <>
               <BookLocation
                 className="book-location-button"
-                ref={bookLocationRef} // No need for a state update here
+                ref={bookLocationRef}
                 book={normalizedBook}
                 setBooks={setBooks}
                 setStatusMessage={setStatusMessage}

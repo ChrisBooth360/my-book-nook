@@ -1,4 +1,4 @@
-
+/* src/styles/BookCard.css */
 .book-card {
     display: flex;
     flex-direction: row;
@@ -77,6 +77,7 @@
 
   .details-toggle p {
     font-size: var(--font-size-small);
+    color: var(--primary-text-color);
   }
 
   /* Button Section */
@@ -94,9 +95,10 @@
     font-weight: bold;
     font-size: var(--font-size-small);
   }
-  
+
   .book-card-buttons button {
     margin-top: 5px;
+    padding: var(--spacing-small) var(--spacing-small);
   }
 
   .remove-from-library-btn {

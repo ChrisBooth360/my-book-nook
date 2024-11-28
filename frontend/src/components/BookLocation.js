@@ -8,6 +8,8 @@ import {
   updateDueDate,
   removeBookFromShelf,
 } from '../services/api';
+import '../styles/App.css'
+import '../styles/BookLocation.css'
 
 const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessage }, ref) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -142,7 +144,7 @@ const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessag
       <p>
         Are you sure you want to remove this book from your library?
       </p>
-      <div className="action-buttons">
+      <div className="remove-manage-buttons">
         <button className="remove-btn" onClick={handleRemove}>
           Yes
         </button>
@@ -161,13 +163,13 @@ const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessag
 
   const renderForm = (labelText, dateField) => (
     <form
-      className="action-form"
+      className="book-manage-form"
       onSubmit={(e) => {
         e.preventDefault();
         handleAction();
       }}
     >
-      <label className="action-form-top-row">
+      <label className="book-manage-form-top-row">
         <span>{labelText}</span>
         <input
           type="text"
@@ -177,8 +179,8 @@ const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessag
           required
         />
       </label>
-      <div className="action-form-bottom-row">
-        <label className="action-form-bottom-row-left">
+      <div className="book-manage-form-bottom-row">
+        <label className="book-manage-form-bottom-row-left">
           <span>{dateField} (Optional)</span>
           <input
             type="date"
@@ -191,7 +193,7 @@ const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessag
             }
           />
         </label>
-        <label className="action-form-bottom-row-right">
+        <label className="book-manage-form-bottom-row-right">
           <span>Due Date (Optional)</span>
           <input
             type="date"
@@ -200,7 +202,7 @@ const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessag
           />
         </label>
       </div>
-      <div className="action-buttons">
+      <div className="book-manage-buttons">
         <button type="submit" className="submit-btn">Submit</button>
         <button type="button" className="cancel-btn" onClick={closeModal}>Cancel</button>
       </div>
@@ -208,7 +210,7 @@ const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessag
   );
 
   const renderReturnContent = (action, person, dateDue) => (
-    <div>
+    <div className="return-form">
       {action === 'Lent' ?
       <p>
         You have lent this book to <strong>{person}</strong>.<br/> 
@@ -217,8 +219,8 @@ const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessag
         You have borrowed this book from <strong>{person}</strong>.<br/>
         {dateDue && <span>Return this book by <strong>{formatDate(dateDue)}</strong>.</span>}
       </p> }
-      <div className="action-form-update">
-        <label className="action-form-update-field">
+      <div className="book-manage-form-update">
+        <label className="book-manage-form-update-field">
           <span>Update Due Date</span>
           <input
             type="date"
@@ -228,7 +230,7 @@ const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessag
         </label>
         <button className="update-btn" onClick={handleDueDateUpdate}>Update</button>
       </div>
-      <div className="action-buttons">
+      <div className="book-manage-buttons">
         <button className="submit-btn" onClick={handleAction}>Return</button>
         <button className="cancel-btn" onClick={closeModal}>Cancel</button>
       </div>
@@ -254,10 +256,10 @@ const BookLocation = forwardRef(({ book, setBooks, googleBookId, setStatusMessag
   return (
     <div className="book-location">
       <button
-        className="btn action-btn"
+        className="manage-book-btn"
         onClick={() => setModalVisible(true)}
       >
-        Update Location
+        Manage Book
       </button>
       {modalVisible && (
         <div className="overlay">

@@ -32,13 +32,16 @@
     --font-family-heading: 'Montserrat', sans-serif;
   
     /* Sizes */
+    --font-size-xsmall: 0.75rem;
     --font-size-small: 0.875rem;
+    --font-size-medium-small: 0.925rem;
     --font-size-medium: 1rem;
     --font-size-large: 1.125rem;
     --font-size-xl: 1.5rem;
   
     --spacing-xsmall: 0.25rem;
     --spacing-small: 0.5rem;
+    --spacing-medium-small: 0.75rem;
     --spacing-medium: 1rem;
     --spacing-large: 2rem;
   }
@@ -69,6 +72,15 @@
   p {
     font-size: var(--font-size-medium);
     margin-bottom: var(--spacing-medium);
+  }
+
+  input {
+    padding: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    font-family: 'Open Sans', sans-serif;
   }
   
   /* ================= Buttons ================= */

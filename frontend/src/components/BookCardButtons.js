@@ -174,31 +174,48 @@ const BookCardButtons = ({
         <div className="dropdown" ref={dropdownRef}>
           <button
             className={`${normalizedBook.status === 'unread' ? 'dropdown-disabled-btn' : 'dropdown-menu-button'}`}
-            onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('unread') : () => handleStatusChange('unread')}
+            onClick={
+              !normalizedBook.existsInLibrary
+                ? () => handleAddToShelf('unread')
+                : () => handleStatusChange('unread')
+            }
           >
             TBR Shelf
           </button>
           <button
             className={`${normalizedBook.status === 'currently reading' ? 'dropdown-disabled-btn' : 'dropdown-menu-button'}`}
-            onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('currently reading') : () => handleStatusChange('currently reading')}
+            onClick={
+              !normalizedBook.existsInLibrary
+                ? () => handleAddToShelf('currently reading')
+                : () => handleStatusChange('currently reading')
+            }
           >
             Currently Reading
           </button>
           <button
             className={`${normalizedBook.status === 'read' ? 'dropdown-disabled-btn' : 'dropdown-menu-button'}`}
-            onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('read') : () => handleStatusChange('read')}
+            onClick={
+              !normalizedBook.existsInLibrary
+                ? () => handleAddToShelf('read')
+                : () => handleStatusChange('read')
+            }
           >
             Read
           </button>
           <button
             className={`${normalizedBook.status === 'dnf' ? 'dropdown-disabled-btn' : 'dropdown-menu-button'}`}
-            onClick={!normalizedBook.existsInLibrary ? () => handleAddToShelf('dnf') : () => handleStatusChange('dnf')}
+            onClick={
+              !normalizedBook.existsInLibrary
+                ? () => handleAddToShelf('dnf')
+                : () => handleStatusChange('dnf')
+            }
           >
             DNF
           </button>
         </div>
       )}
     </div>
+
   );
 };
 

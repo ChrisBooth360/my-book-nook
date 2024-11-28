@@ -1,3 +1,5 @@
+/* src/styles/BookCardButtons.css */
+
 /* Button Group */
 .button-group {
     display: flex;
@@ -5,12 +7,12 @@
     justify-content: space-between;
     width: 100%;
     margin-top: var(--spacing-small);
-  }
+    position: relative; /* Enable positioning for child dropdown */
+}
   
   /* Button Styles */
   .add-to-shelf-btn,
   .dropdown-btn {
-    padding: var(--spacing-small) var(--spacing-small);
     font-size: var(--font-size-medium);
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -19,7 +21,6 @@
     text-overflow: ellipsis;
   }
   
-  /* Add-to-Shelf Button */
   .add-to-shelf-btn {
     flex-grow: 1;
     background-color: var(--primary-button-bg);
@@ -55,20 +56,24 @@
   .dropdown-disabled-btn:hover {
     background-color: var(--disabled-button-bg);
   }
+
+  .dropdown-disabled-btn {
+    font-size: var(--font-size-small);
+  }
   
   /* Dropdown */
   .dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
     display: flex;
     flex-direction: column;
+    position: absolute;
+    top: 100%; /* Position directly below the button group */
+    left: 0;   /* Align with the left edge of the button group */
     background-color: var(--primary-button-bg);
     border-radius: 0 0 5px 5px;
-    width: 100%;
+    width: calc(100%); /* Match parent button group's width */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 1;
-  }
+    }
   
   .dropdown-menu-button {
     background-color: var(--primary-button-bg);
@@ -76,7 +81,7 @@
     border: none;
     font-size: var(--font-size-small);
     text-align: center;
-    padding: var(--spacing-small) var(--spacing-medium);
+    padding: var(--spacing-small) var(--spacing-small);
     cursor: pointer;
   }
   
@@ -105,6 +110,11 @@
     .dropdown-btn {
       flex-grow: 0; /* Keep dropdown minimal width */
       flex-shrink: 0; /* Prevent it from shrinking */
+    }
+
+    .dropdown {
+        width: 100%; /* Fit dropdown to parent width */
+        left: 0;     /* Align properly on small screens */
     }
   }
   
